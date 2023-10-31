@@ -6,7 +6,7 @@ const page = () => {
     return (
         <MaxWidthWrapper>
             <div>
-                <h1>Ajourter un nouveau Livre</h1>
+                <h1>New BOOK</h1>
                 <BookForm />
             </div>
         </MaxWidthWrapper>
