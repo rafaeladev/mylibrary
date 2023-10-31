@@ -1,8 +1,13 @@
 import Link from 'next/link.js';
 import MaxWidthWrapper from './MaxWidthWrapper';
 import { buttonVariants } from './ui/button';
+import { getAuthSession } from '@/lib/nextauth';
+import { useSession } from 'next-auth/react';
+import Login from './Login';
+import Logout from './Logout';
 
-const Navbar = () => {
+export default async function Navbar() {
+    const session = await getAuthSession();
     return (
         <nav className='fixed w-22 inset-y-0 top-0 z-30 h-full border-r boder-gray-200 bg-white/75 backdrop-blur-lg transition-all p-2'>
             {/* <MaxWidthWrapper> */}
@@ -23,17 +28,20 @@ const Navbar = () => {
                     >
                         Library
                     </Link>
-                    <Link
-                        href='/Login'
-                        className={buttonVariants({ variant: 'ghost', size: 'sm' })}
-                    >
-                        Login
-                    </Link>
+                    {session && (
+                        <Link
+                            href='/create'
+                            className={buttonVariants({ variant: 'ghost', size: 'sm' })}
+                        >
+                            Create
+                        </Link>
+                    )}
+                    <div className={buttonVariants({ variant: 'ghost', size: 'sm' })}>
+                        {session ? <Logout /> : <Login />}
+                    </div>
                 </>
             </div>
             {/* </MaxWidthWrapper> */}
         </nav>
     );
-};
-
-export default Navbar;
+}

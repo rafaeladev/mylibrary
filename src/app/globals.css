@@ -77,3 +77,8 @@
 
 .grainy {
 }
+
+.book-cover {
+    width: 200px; /* ajuste la taille selon tes besoins */
+    height: auto; /* maintient le ratio hauteur/largeur */
+}
