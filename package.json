@@ -23,6 +23,7 @@
     "axios": "^1.6.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
+    "express": "^4.18.2",
     "lucide-react": "^0.287.0",
     "next": "13.5.5",
     "react": "^18",

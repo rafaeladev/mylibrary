@@ -1,21 +1,15 @@
 'use client';
 
-import { zodResolver } from '@hookform/resolvers/zod';
+// Importe les modules nécessaires
 import { useForm } from 'react-hook-form';
-import * as z from 'zod';
-import { useState, useEffect } from 'react';
-import axios from 'axios';
 
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { buttonVariants } from '@/components/ui/button';
+import { zodResolver } from '@hookform/resolvers/zod';
+
+import * as z from 'zod';
+
+import { Checkbox } from '@/components/ui/checkbox';
+import { Button, buttonVariants } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 import {
     Form,
@@ -26,7 +20,8 @@ import {
     FormLabel,
     FormMessage,
 } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
     Select,
     SelectContent,
@@ -35,29 +30,30 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
-
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import Image from 'next/image';
-import BookCover from '@/pages/bookcover/BookCover';
-import { PrismaClient } from '@prisma/client';
-import { SubmitHandler } from 'react-hook-form';
 
-const formSchema = z.object({
-    title: z.string(),
-    description: z.string(),
-    authors: z.enum(['Author1', 'Author2', 'Author3']),
-    category: z.enum(['Category1']),
-    image: z.string().min(2, {
-        message: 'Username must be at least 2 characters.',
-    }),
-    link: z.string().min(2, {
-        message: 'Username must be at least 2 characters.',
-    }),
-    status: z.boolean(),
-    type: z.enum(['Type1']),
-    favorite: z.boolean(),
-});
+import { Progress } from '@/components/ui/progress';
+
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+
+// Importe le modèle Prisma
+import { PrismaClient } from '@prisma/client';
+
+// Déclare l'interface pour les données du formulaire
+interface FormData {
+    title: string;
+    imgUrl: string;
+    description: string;
+    type: string;
+    category: string;
+    status: boolean;
+    favorite: boolean;
+    authors: string[];
+}
+
+// Image par défaut
+const defaultCoverUrl = '/default-placeholder.png';
 
 interface Author {
     id: number;
@@ -74,46 +70,85 @@ interface Category {
     name: string;
 }
 
-// Exemple de modèle du formulaire
-interface BookFormData {
-    title: string;
-    description: string;
-    image: string;
-    favorite: boolean;
-    category: string;
-    type: string;
-    link: string;
-    authors: string;
-    status: boolean;
-}
+const formSchema = z.object({
+    title: z.string(),
+    imgUrl: z.string(),
+    description: z.string(),
+    type: z.string(),
+    category: z.string(),
+    status: z.boolean().default(true),
+    favorite: z.boolean().default(false),
+    authors: z.array(z.string()),
+});
 
+// Crée le composant du formulaire
 function BookForm() {
-    // Gestion données formulaire
-    const form = useForm<z.infer<typeof formSchema>>({
+    const methods = useForm();
+    const [loading, setLoading] = useState(false);
+
+    // Initialise le hook useForm
+    const { handleSubmit, register, setValue } = useForm<FormData>();
+
+    type BookFormValues = z.infer<typeof formSchema>;
+
+    const form = useForm<BookFormValues>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             title: '',
+            imgUrl: '',
             description: '',
-            image: '',
-            favorite: true,
-            category: 'Category1',
-            type: 'Type1',
-            link: '',
+            type: '',
+            category: 'Cat1',
             status: true,
-            authors: 'Author1',
+            favorite: true,
+            authors: [],
         },
+        mode: 'onChange',
     });
 
-    const { setValue } = form;
-
-    // Book title search
+    // initialise la recherche de la couverture
     const [bookTitle, setBookTitle] = useState<string>('');
     const [coverUrl, setCoverUrl] = useState<string>('');
     const [error, setError] = useState<string | null>(null);
+    const [imageUrl, setImageUrl] = useState<string>(''); // Nouvel état pour l'URL de l'image
 
+    // Fonction de soumission du formulaire
+    async function onSubmit(data: BookFormValues) {
+        const text = JSON.stringify(data, null, 2);
+        console.log('Données soumises :', text);
+
+        // Utilise Prisma pour créer une nouvelle entrée dans la table Book
+        try {
+            const response = await fetch('/api/createBook', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ ...data, imgUrl: coverUrl }), // Mise à jour de l'URL de l'image directement ici
+            });
+
+            if (response.ok) {
+                console.log('Le livre a été enregistré avec succès.');
+                // Tu peux également récupérer la réponse de l'API si elle renvoie des données supplémentaires.
+                const responseData = await response.json();
+                console.log("Réponse de l'API :", responseData);
+                return 'Le livre a été enregistré avec succès.';
+            } else {
+                console.error('Erreur lors de la création du livre :', response.statusText);
+                // Gère l'erreur comme tu le souhaites, par exemple, en lançant une nouvelle erreur.
+            }
+        } catch (error) {
+            console.error('Erreur lors de la création du livre :', error);
+        }
+    }
+
+    // Fonction pour chercher couverture
     const handleSearch = async (event: React.MouseEvent<HTMLButtonElement>) => {
         event.preventDefault();
+
         try {
+            setLoading(true);
+            // Appel à l'API Google pour récupérer la couverture
             const response = await axios.get<string>('/api/getBookCover', {
                 params: { bookTitle },
             });
@@ -121,18 +156,37 @@ function BookForm() {
             if (response.data.length > 0) {
                 setCoverUrl(response.data);
                 setError(null);
+                setValue('imgUrl', response.data);
             } else {
                 setCoverUrl('');
-                setError('Aucun résultat trouvé pour la recherche actuelle.');
+                setError(`Aucun résultat trouvé pour la recherche actuelle depuis l'API.`);
+                setValue('imgUrl', defaultCoverUrl);
             }
         } catch (error) {
             console.error('Erreur lors de la recherche de la couverture du livre', error);
             setCoverUrl('');
-            setError("Une erreur s'est produite lors de la recherche. Veuillez réessayer.");
+            setError(`Aucun résultat trouvé pour la recherche actuelle depuis l'API.`);
+        } finally {
+            setLoading(false);
         }
     };
 
-    // Book description add
+    // Fonction pour valider l'ajout par lien externe
+    const handleExternalImageSubmit = () => {
+        // Vérifie si l'URL de l'image est une URL valide
+        const isValidUrl = /^https?:\/\/\S+\.\S+$/.test(imageUrl);
+
+        if (isValidUrl) {
+            // Met à jour l'état coverUrl avec l'URL validée
+            setCoverUrl(imageUrl);
+            setError(null); // Efface les erreurs précédentes
+        } else {
+            // Affiche une erreur si l'URL n'est pas valide
+            setError("L'URL de l'image n'est pas valide. Veuillez saisir une URL correcte.");
+        }
+    };
+
+    // Book data add
     const [bookDescription, setBookDescription] = useState<string>('');
 
     const [authors, setAuthors] = useState<Author[]>([]);
@@ -144,6 +198,7 @@ function BookForm() {
     const [categories, setCategories] = useState<Category[]>([]);
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
+    // Fonction pour chercher les données dans la BD prisma et afficher
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -164,105 +219,6 @@ function BookForm() {
         fetchData();
     }, []);
 
-    // 2. Define a submit handler.
-    const prisma = new PrismaClient();
-    const onSubmit: SubmitHandler<BookFormData> = async (data) => {
-        console.log('Form data submitted:', data);
-        try {
-            // Supposons que "type" est une relation avec une table "Type"
-            const typeData = {
-                name: data.type,
-            };
-
-            const existingType = await prisma.type.findFirst({
-                where: {
-                    name: data.type,
-                },
-            });
-
-            // Si le type existe déjà, utilise son ID, sinon crée une nouvelle entrée
-            const typeId = existingType
-                ? existingType.id
-                : (await prisma.type.create({ data: typeData })).id;
-
-            // Supposons que "category" est une relation avec une table "Category"
-            const categoryData = {
-                name: data.category,
-            };
-
-            const existingCategory = await prisma.category.findFirst({
-                where: {
-                    name: data.category,
-                },
-            });
-
-            // Si la catégorie existe déjà, utilise son ID, sinon crée une nouvelle entrée
-            const categoryId = existingCategory
-                ? existingCategory.id
-                : (await prisma.category.create({ data: categoryData })).id;
-
-            const createdBook = await prisma.book.create({
-                data: {
-                    title: data.title,
-                    description: data.description,
-                    image: data.image,
-                    favorite: data.favorite,
-                    category: {
-                        connect: { id: categoryId },
-                    },
-                    type: {
-                        connect: { id: typeId },
-                    },
-                    link: data.link,
-                    status: data.status,
-                },
-            });
-
-            // Supposons que "authors" est une relation avec une table "Author"
-            // et qu'il existe une table de liaison "Author_Books"
-            const authorData = {
-                name: data.authors, // Ceci est un exemple, ajuste selon ta structure réelle.
-            };
-
-            const createdAuthor = await prisma.author.create({
-                data: authorData,
-            });
-
-            // Crée une entrée dans la table de liaison Author_Books
-            const authorBookData = {
-                authorId: createdAuthor.id,
-                bookId: createdBook.id, // Utilise l'ID du livre créé précédemment
-            };
-
-            await prisma.author_Books.create({
-                data: authorBookData,
-            });
-
-            // Mise à jour de la valeur des champs dans le formulaire après la soumission
-            setValue('title', '');
-            setValue('description', '');
-            setValue('image', '');
-            setValue('favorite', true);
-            setValue('category', 'Category1');
-            setValue('type', 'Type1');
-            setValue('link', '');
-            setValue('status', true);
-            setValue('authors', 'Author1');
-
-            console.log('Le livre a été enregistré avec succès.');
-            const savedBook = await prisma.book.findUnique({
-                where: {
-                    id: createdBook.id,
-                },
-            });
-
-            console.log('Informations sur le livre enregistré :', savedBook);
-            return 'Le livre a été enregistré avec succès.';
-        } catch (error) {
-            console.error("Erreur lors de l'enregistrement du livre", error);
-            return "Erreur lors de l'enregistrement du livre";
-        }
-    };
     return (
         <Card className='w-[500px]'>
             <CardHeader>
@@ -275,45 +231,107 @@ function BookForm() {
                         onSubmit={form.handleSubmit(onSubmit)}
                         className='space-y-8'
                     >
+                        {/* Champ de titre */}
                         <FormField
+                            control={form.control}
                             name='title'
                             render={({ field }) => (
                                 <FormItem>
-                                    {/* Nom */}
-                                    <FormLabel>Nom</FormLabel>
+                                    <FormLabel>Titre du livre</FormLabel>
                                     <FormControl>
                                         <Input
-                                            placeholder='Nom du livre'
-                                            value={bookTitle}
-                                            onChange={(e) => setBookTitle(e.target.value)}
+                                            placeholder='titre du livre'
+                                            {...field}
+                                            onChange={(e) => {
+                                                setBookTitle(e.target.value); // Met à jour le state bookTitle
+                                                field.onChange(e); // Appelle la fonction onChange du champ title du formulaire
+                                            }}
                                         />
                                     </FormControl>
+                                    <FormDescription>
+                                        Rentrez le titre du livre ici puis cliquez sur rechercher la
+                                        couverture
+                                    </FormDescription>
+                                    <Button
+                                        className={buttonVariants({
+                                            variant: 'secondary',
+                                            size: 'sm',
+                                        })}
+                                        onClick={handleSearch}
+                                    >
+                                        Rechercher Couverture
+                                    </Button>
+                                    <FormMessage />
                                 </FormItem>
                             )}
                         />
-                        <button
-                            className={buttonVariants({ variant: 'secondary', size: 'sm' })}
-                            onClick={(e) => {
-                                console.log('Bouton cliqué');
-                                handleSearch(e);
-                            }}
-                            type='button'
-                        >
-                            Rechercher couverture
-                        </button>
 
-                        {coverUrl && (
-                            <div>
-                                <FormLabel>Couverture</FormLabel>
-                                <img
-                                    className='book-cover'
-                                    src={coverUrl}
-                                    alt='Couverture du livre'
-                                />
-                            </div>
-                        )}
+                        {/* Champ de la couverture */}
+                        <FormField
+                            control={form.control}
+                            name='imgUrl'
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Couverture</FormLabel>
+                                    <FormControl> </FormControl>
+                                    {loading && <Progress value={70} />}
+                                    {error && (
+                                        <>
+                                            <FormDescription>
+                                                <p className='text-red-500'>{error}</p>
+                                            </FormDescription>
+                                            <Input
+                                                type='text'
+                                                placeholder="URL de l'image"
+                                                {...field}
+                                                onChange={(e) => setImageUrl(e.target.value)}
+                                            />
+                                            {/* Bouton pour valider l'ajout par lien externe */}
+                                            <Button
+                                                className={buttonVariants({
+                                                    variant: 'secondary',
+                                                    size: 'sm',
+                                                })}
+                                                onClick={handleExternalImageSubmit}
+                                            >
+                                                {"Valider l'ajout par lien externe"}
+                                            </Button>
+                                        </>
+                                    )}
 
-                        {/* Author */}
+                                    {/* Couverture par défaut */}
+                                    {!loading && !coverUrl && (
+                                        <img
+                                            className='book-cover'
+                                            src={defaultCoverUrl}
+                                            alt='Couverture du livre par défaut'
+                                        />
+                                    )}
+
+                                    {!loading && !coverUrl && imageUrl && (
+                                        <img
+                                            className='book-cover'
+                                            src={imageUrl}
+                                            alt='Couverture du livre'
+                                        />
+                                    )}
+
+                                    {/* On affiche la couverture de l'API */}
+                                    {loading && <p>Chargement en cours...</p>}
+                                    {coverUrl && !loading && (
+                                        <img
+                                            className='book-cover'
+                                            src={coverUrl}
+                                            alt='Couverture du livre'
+                                        />
+                                    )}
+
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        {/* Champ d'auteurs avec sélection multiple */}
                         <FormField
                             control={form.control}
                             name='authors'
@@ -323,9 +341,9 @@ function BookForm() {
                                     <Select>
                                         <select
                                             name='authors'
-                                            value={selectedAuthors}
+                                            value={field.value}
                                             onChange={(e) =>
-                                                setSelectedAuthors(
+                                                field.onChange(
                                                     Array.from(
                                                         e.target.selectedOptions,
                                                         (option) => option.value
@@ -349,112 +367,119 @@ function BookForm() {
                             )}
                         />
 
-                        {/*  Description */}
+                        {/* Champ de description */}
                         <FormField
-                            control={form.control}
                             name='description'
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Description</FormLabel>
-                                    {/* Description */}
+                                    <FormLabel>Description / Sinopsis</FormLabel>
                                     <FormControl>
-                                        <Input
-                                            placeholder='Description du livre'
-                                            value={bookDescription}
-                                            onChange={(e) => setBookDescription(e.target.value)}
+                                        <Textarea
+                                            placeholder='Ecriz ici un petite description/sinopsis du livre'
+                                            className='resize-none'
+                                            {...field}
                                         />
                                     </FormControl>
+                                    <FormDescription>
+                                        Tu peux rentrer ici la description du livre
+                                    </FormDescription>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
 
-                        {/*  Type */}
+                        {/* Champ de type */}
                         <FormField
-                            control={form.control}
                             name='type'
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Type</FormLabel>
-                                    <Select
-                                        name='type'
-                                        value={selectedType || ''}
-                                        onValueChange={(selectedValue) =>
-                                            setSelectedType(selectedValue)
-                                        }
-                                    >
-                                        <SelectTrigger className='w-[180px]'>
-                                            <SelectValue placeholder='Choisir un type' />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {types.map((type) => (
-                                                <SelectItem
-                                                    key={type.id}
-                                                    value={type.name}
-                                                >
-                                                    {type.name}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
+                                    <FormControl>
+                                        <Select
+                                            onValueChange={field.onChange}
+                                            defaultValue={field.value}
+                                        >
+                                            <SelectTrigger className='w-[180px]'>
+                                                <SelectValue placeholder='Choisir un type' />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {types.map((type) => (
+                                                    <SelectItem
+                                                        key={type.id}
+                                                        value={type.name}
+                                                    >
+                                                        {type.name}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </FormControl>
+                                    <FormDescription>
+                                        Choisir le type de document (BD, Livre, Manga)
+                                    </FormDescription>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
 
-                        {/* Catégorie */}
+                        {/* Champ de catégorie */}
                         <FormField
-                            control={form.control}
                             name='category'
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Catégorie</FormLabel>
-                                    <Select
-                                        name='category'
-                                        value={selectedCategory || ''}
-                                        onValueChange={(selectedValue) =>
-                                            setSelectedCategory(selectedValue)
-                                        }
-                                    >
-                                        <SelectTrigger className='w-[180px]'>
-                                            <SelectValue placeholder='Choisir la category' />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {categories.map((category) => (
-                                                <SelectItem
-                                                    key={category.id}
-                                                    value={category.name}
-                                                >
-                                                    {category.name}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
+                                    <FormLabel>Categorie</FormLabel>
+                                    <FormControl>
+                                        <Select
+                                            onValueChange={field.onChange}
+                                            defaultValue={field.value}
+                                        >
+                                            <SelectTrigger className='w-[180px]'>
+                                                <SelectValue placeholder='Choisir une categorie' />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {categories.map((type) => (
+                                                    <SelectItem
+                                                        key={type.id}
+                                                        value={type.name}
+                                                    >
+                                                        {type.name}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </FormControl>
+                                    <FormDescription>
+                                        Choisir la categorie du document (SF, roman, fantaisie)
+                                    </FormDescription>
+                                    <FormMessage />
                                 </FormItem>
                             )}
                         />
 
-                        {/* Status */}
+                        {/* Champ de statut avec radio buttons */}
                         <FormField
                             control={form.control}
                             name='status'
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Status</FormLabel>
-                                    <RadioGroup defaultValue='present'>
+                                    <RadioGroup
+                                        onValueChange={(value) => field.onChange(value === 'true')}
+                                        value={field.value ? 'true' : 'false'}
+                                    >
                                         <div className='flex items-center space-x-2'>
                                             <RadioGroupItem
-                                                value='present'
-                                                id='r1'
+                                                value='true'
+                                                id='present'
                                             />
-                                            <Label htmlFor='r1'>Présent</Label>
+                                            <Label htmlFor='present'>Présent</Label>
                                         </div>
                                         <div className='flex items-center space-x-2'>
                                             <RadioGroupItem
-                                                value='emprunte'
-                                                id='r2'
+                                                value='false'
+                                                id='emprunte'
                                             />
-                                            <Label htmlFor='r2'>Emprunté</Label>
+                                            <Label htmlFor='emprunte'>Emprunté</Label>
                                         </div>
                                     </RadioGroup>
                                     <FormMessage />
@@ -462,16 +487,20 @@ function BookForm() {
                             )}
                         />
 
-                        {/* Cour de coeur */}
+                        {/* Champ de coup de cœur */}
                         <FormField
                             control={form.control}
                             name='favorite'
                             render={({ field }) => (
                                 <FormItem>
                                     <div className='flex items-center space-x-2'>
-                                        <Checkbox id='terms' />
+                                        <Checkbox
+                                            id='favorite'
+                                            checked={field.value}
+                                            onCheckedChange={(checked) => field.onChange(checked)}
+                                        />
                                         <Label
-                                            htmlFor='terms'
+                                            htmlFor='favorite'
                                             className='text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70'
                                         >
                                             Coup de coeur
@@ -482,7 +511,13 @@ function BookForm() {
                             )}
                         />
 
-                        <Button type='submit'>Ajouter Livre</Button>
+                        {/* Bouton de soumission du formulaire */}
+                        <Button
+                            type='submit'
+                            // disabled={loading || !bookTitle || !coverUrl}
+                        >
+                            Ajouter Livre
+                        </Button>
                     </form>
                 </Form>
             </CardContent>
