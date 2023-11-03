@@ -127,6 +127,10 @@ function BookForm() {
 
         // Utilise Prisma pour créer une nouvelle entrée dans la table Book
         try {
+            console.log(
+                'authors envoyés',
+                selectedAuthors.map((value) => value.value)
+            );
             const response = await fetch('/api/createBook', {
                 method: 'POST',
                 headers: {
@@ -135,9 +139,8 @@ function BookForm() {
                 body: JSON.stringify({
                     ...data,
                     imgUrl: coverUrl,
-                    authors: data.authors.map((author: string | { name: string }) =>
-                        typeof author === 'string' ? author : author.name
-                    ),
+                    authors: selectedAuthors.map((value) => value.value),
+                    // authors: selectedAuthors,
                 }),
             });
 
@@ -294,9 +297,8 @@ function BookForm() {
         (newAuthors: Author[]) => {
             console.log('New Authors:', newAuthors);
             setSelectedAuthors(newAuthors);
-            setValue('authors', newAuthors);
         },
-        [setSelectedAuthors, setValue]
+        [setSelectedAuthors]
     );
 
     return (
@@ -416,7 +418,7 @@ function BookForm() {
 
                         {/* Champ d'auteurs avec sélection multiple */}
                         <FormField
-                            control={form.control}
+                            // control={form.control}
                             name='authors'
                             render={({ field }) => (
                                 <FormItem>
@@ -425,7 +427,7 @@ function BookForm() {
                                         value={selectedAuthors}
                                         onChange={(selectedAuthors) => {
                                             handleAuthorChange(selectedAuthors);
-                                            field.onChange(selectedAuthors);
+                                            // field.onChange(selectedAuthors);
                                             // console.log('valeur enregistrée', field.value);
                                             // setValue('authors', selectedAuthors);
                                         }}

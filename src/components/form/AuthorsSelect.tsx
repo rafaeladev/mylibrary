@@ -1,5 +1,5 @@
 // AuthorsSelect.tsx
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import CreatableSelect from 'react-select/creatable';
 
 interface Author {
@@ -18,10 +18,10 @@ const AuthorsSelect: React.FC<AuthorsSelectProps> = React.memo(
     ({ onChange, value, addAuthors, authors }) => {
         // const [isMounted, setIsMounted] = useState(false);
 
-        useEffect(() => {
-            console.log('Authors updated in AuthorsSelect:', authors);
-            onChange(value);
-        }, [authors, value]);
+        // useEffect(() => {
+        //     console.log('Authors updated in AuthorsSelect:', authors);
+        //     onChange(value);
+        // }, [authors, value]);
 
         const selectOptions =
             authors?.map((author) => ({

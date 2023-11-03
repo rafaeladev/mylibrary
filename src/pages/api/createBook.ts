@@ -12,6 +12,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     try {
         const data = req.body;
+        console.log('les auteurs que lAPI reçoit', data.authors);
 
         const typeData = {
             name: data.type,
@@ -67,14 +68,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 const existingAuthor = await prisma.author.findFirst({
                     where: { name: authorName.trim() },
                 });
+                console.log('existing author', existingAuthor);
 
                 if (existingAuthor) {
-                    await prisma.author_Books.create({
-                        data: {
-                            authorId: existingAuthor.id,
-                            bookId: createdBook.id,
-                        },
-                    });
+                    console.log('new autor Books:'),
+                        await prisma.author_Books.create({
+                            data: {
+                                authorId: existingAuthor.id,
+                                bookId: createdBook.id,
+                            },
+                        });
                 } else {
                     console.error(`L'auteur "${authorName}" n'existe pas dans la base de données.`);
                 }
