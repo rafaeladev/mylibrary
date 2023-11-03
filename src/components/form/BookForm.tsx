@@ -37,8 +37,17 @@ import { Progress } from '@/components/ui/progress';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
-// Importe le modèle Prisma
-import { PrismaClient } from '@prisma/client';
+// Auto completion
+import ReactSelect from 'react-select';
+// Importez CreatableSelect de ReactSelect
+import CreatableSelect from 'react-select/creatable';
+
+// Dans votre composant principal
+import CustomSelectOption from '../CustomSelectionOption';
+
+// Import de la fonction dynamic pour imort CreatableSelect de manière asynchrone
+import dynamic from 'next/dynamic';
+import AuthorsSelect from './AuthorsSelect';
 
 // Déclare l'interface pour les données du formulaire
 interface FormData {
@@ -49,15 +58,16 @@ interface FormData {
     category: string;
     status: boolean;
     favorite: boolean;
-    authors: string[];
+    authors: Author[];
 }
 
 // Image par défaut
 const defaultCoverUrl = '/default-placeholder.png';
 
 interface Author {
-    id: number;
+    id?: number;
     name: string;
+    value?: string;
 }
 
 interface Type {
@@ -80,6 +90,12 @@ const formSchema = z.object({
     favorite: z.boolean().default(false),
     authors: z.array(z.string()),
 });
+
+declare module 'react-select' {
+    interface Props<OptionType> {
+        onCreateOption?: (inputValue: string) => void;
+    }
+}
 
 // Crée le composant du formulaire
 function BookForm() {
@@ -124,7 +140,13 @@ function BookForm() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ ...data, imgUrl: coverUrl }), // Mise à jour de l'URL de l'image directement ici
+                body: JSON.stringify({
+                    ...data,
+                    imgUrl: coverUrl,
+                    authors: data.authors.map((author: string | { name: string }) =>
+                        typeof author === 'string' ? author : author.name
+                    ),
+                }),
             });
 
             if (response.ok) {
@@ -187,28 +209,30 @@ function BookForm() {
     };
 
     // Book data add
-    const [bookDescription, setBookDescription] = useState<string>('');
 
     const [authors, setAuthors] = useState<Author[]>([]);
-    const [selectedAuthors, setSelectedAuthors] = useState<string[]>([]);
+    const [selectedAuthors, setSelectedAuthors] = useState<Author[]>([]);
 
     const [types, setTypes] = useState<Type[]>([]);
     const [selectedType, setSelectedType] = useState<string | null>(null);
 
     const [categories, setCategories] = useState<Category[]>([]);
-    const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
+    const [isMounted, setIsMounted] = useState(true);
 
     // Fonction pour chercher les données dans la BD prisma et afficher
     useEffect(() => {
+        console.log('Fetching data...');
         const fetchData = async () => {
             try {
-                const [authorsResponse, typesResponse, categoriesResponse] = await Promise.all([
-                    axios.get<Author[]>('/api/getAuthors'),
+                const [typesResponse, categoriesResponse] = await Promise.all([
                     axios.get<Type[]>('/api/getType'),
                     axios.get<Category[]>('/api/getCategory'),
                 ]);
 
-                setAuthors(authorsResponse.data);
+                console.log('Fetched data:', typesResponse.data, categoriesResponse.data);
+
+                // setTypes et setCategories sont sûrs à appeler même si le composant est démonté
                 setTypes(typesResponse.data);
                 setCategories(categoriesResponse.data);
             } catch (error) {
@@ -217,7 +241,123 @@ function BookForm() {
         };
 
         fetchData();
+
+        // Nettoyage de l'effet
+        return () => {
+            console.log('BookForm fetchData cleanup');
+        };
     }, []);
+
+    const [loadingAuthors, setLoadingAuthors] = useState(false);
+
+    useEffect(() => {
+        const fetchAuthors = async () => {
+            try {
+                setLoadingAuthors(true);
+                const response = await axios.get<Author[]>('/api/getAuthors');
+
+                setAuthors(response.data);
+            } catch (error) {
+                console.error('Erreur lors de la récupération des auteurs :', error);
+            } finally {
+                setLoadingAuthors(false);
+            }
+        };
+
+        fetchAuthors();
+        console.log('BookForm fetchAuthors effect');
+    }, []);
+
+    useEffect(() => {
+        console.log('Selected authors:', selectedAuthors);
+    }, [selectedAuthors]);
+
+    // Gestion autheurs
+    const addAuthors = async (inputValue: any) => {
+        try {
+            console.log('Input Value:', inputValue);
+            // Vérifiez si le nom de l'auteur n'est pas vide
+            if (inputValue !== '') {
+                console.log('Creating author:', inputValue);
+
+                // Appelez votre API pour ajouter un nouvel auteur
+                const response = await axios.post('/api/addAuthors', {
+                    name: inputValue,
+                });
+
+                if (
+                    response.data.error &&
+                    response.data.error.includes('unique constraint failed')
+                ) {
+                    // L'auteur avec ce nom existe déjà, vous pouvez gérer cela ici
+                    console.error("L'auteur avec ce nom existe déjà.");
+                } else {
+                    // Mettez à jour l'état des auteurs avec les nouvelles données si nécessaire
+                    // Utilisez directement la réponse de la requête pour mettre à jour la liste des auteurs
+                    setAuthors((prevAuthors) => [...prevAuthors, response.data]);
+                    console.log('Auteur ajouté avec succès :', response.data);
+
+                    // Ajoutez le nouvel auteur à la liste des auteurs sélectionnés
+                    setSelectedAuthors((prevSelectedAuthors) => [
+                        ...prevSelectedAuthors,
+                        { name: inputValue },
+                    ]);
+                    handleAuthorSelection(selectedAuthors, {
+                        action: 'select-option',
+                    });
+                    handleAuthorChange([...selectedAuthors, { name: inputValue }]);
+                    console.log('liste auteurs selectionnés:', selectedAuthors);
+                }
+            } else {
+                console.error("Le nom de l'auteur ne peut pas être vide.");
+            }
+        } catch (error) {
+            console.error("Erreur lors de l'ajout d'auteurs :", error);
+        }
+    };
+
+    useEffect(() => {
+        console.log('ParentComponent did mount');
+
+        return () => {
+            console.log('ParentComponent will unmount');
+        };
+    }, []);
+
+    const handleAuthorSelection = (newValue: any, actionMeta: { action: string }): void => {
+        console.log('New Value:', newValue);
+        console.log('Action Meta:', actionMeta);
+
+        if (actionMeta.action === 'select-option' || actionMeta.action === 'create-option') {
+            setSelectedAuthors(newValue);
+
+            if (actionMeta.action === 'create-option') {
+                // Si un nouvel auteur a été créé, ajoute-le à la liste des auteurs sans réinitialiser la liste actuelle
+                const newAuthor = newValue[newValue.length - 1];
+                console.log('New Author:', newAuthor);
+                const newAuthorName = newAuthor
+                    ? (newAuthor.name || newAuthor.label || newAuthor.value || '').trim()
+                    : '';
+                console.log('New Author Name:', newAuthorName);
+                // Vérifie si le nouvel auteur est déjà présent dans la liste
+                const isAuthorAlreadySelected = selectedAuthors.some(
+                    (author) => author.name === newAuthorName
+                );
+                console.log('Is Author Already Selected:', isAuthorAlreadySelected);
+                // Ajoute le nouvel auteur uniquement s'il n'est pas déjà présent
+                if (!isAuthorAlreadySelected) {
+                    addAuthors([...selectedAuthors, { name: newAuthorName }]);
+                }
+            }
+        }
+    };
+
+    const handleAuthorChange = (newAuthors: Author[]) => {
+        setSelectedAuthors(newAuthors);
+        setValue('authors', newAuthors);
+    };
+
+    const CreatableSelect = dynamic(() => import('react-select/creatable'), { ssr: false });
 
     return (
         <Card className='w-[500px]'>
@@ -338,30 +478,14 @@ function BookForm() {
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Sélectionner un ou plusieurs auteurs :</FormLabel>
-                                    <Select>
-                                        <select
-                                            name='authors'
-                                            value={field.value}
-                                            onChange={(e) =>
-                                                field.onChange(
-                                                    Array.from(
-                                                        e.target.selectedOptions,
-                                                        (option) => option.value
-                                                    )
-                                                )
-                                            }
-                                            multiple
-                                        >
-                                            {authors.map((author) => (
-                                                <option
-                                                    key={author.id}
-                                                    value={author.name}
-                                                >
-                                                    {author.name}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </Select>
+                                    <AuthorsSelect
+                                        value={selectedAuthors}
+                                        onChange={(selectedAuthors) => {
+                                            handleAuthorChange(selectedAuthors);
+                                            field.onChange(selectedAuthors as Author[]);
+                                        }}
+                                        addAuthors={addAuthors}
+                                    />
                                     <FormMessage />
                                 </FormItem>
                             )}
@@ -514,7 +638,7 @@ function BookForm() {
                         {/* Bouton de soumission du formulaire */}
                         <Button
                             type='submit'
-                            // disabled={loading || !bookTitle || !coverUrl}
+                            disabled={!form.formState.isValid}
                         >
                             Ajouter Livre
                         </Button>

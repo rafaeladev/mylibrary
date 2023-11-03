@@ -2,7 +2,6 @@
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { PrismaClient } from '@prisma/client';
-import { getAuthSession } from '@/lib/nextauth';
 
 const prisma = new PrismaClient();
 
