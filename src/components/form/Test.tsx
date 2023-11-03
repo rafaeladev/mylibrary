@@ -5,8 +5,7 @@ import { useForm } from 'react-hook-form';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 
-// Importe Zod
-import { z, object, string, boolean, array } from 'zod';
+import * as z from 'zod';
 
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button, buttonVariants } from '@/components/ui/button';
@@ -38,6 +37,16 @@ import { Progress } from '@/components/ui/progress';
 import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 
+// Auto completion
+import ReactSelect from 'react-select';
+// Importez CreatableSelect de ReactSelect
+import CreatableSelect from 'react-select/creatable';
+
+// Dans votre composant principal
+import CustomSelectOption from '../CustomSelectionOption';
+
+// Import de la fonction dynamic pour imort CreatableSelect de manière asynchrone
+import dynamic from 'next/dynamic';
 import AuthorsSelect from './AuthorsSelect';
 
 // Déclare l'interface pour les données du formulaire
@@ -49,7 +58,6 @@ interface FormData {
     category: string;
     status: boolean;
     favorite: boolean;
-    // authors: (string | { name: string })[];
     authors: Author[];
 }
 
@@ -72,17 +80,22 @@ interface Category {
     name: string;
 }
 
-// Définis le schéma de validation avec Zod
-const bookSchema = object({
-    title: string(),
-    imgUrl: string(),
-    description: string(),
-    type: string(),
-    category: string(),
-    status: boolean(),
-    favorite: boolean(),
-    authors: array(string()), // Adapté à ta structure d'auteurs
+const formSchema = z.object({
+    title: z.string(),
+    imgUrl: z.string(),
+    description: z.string(),
+    type: z.string(),
+    category: z.string(),
+    status: z.boolean().default(true),
+    favorite: z.boolean().default(false),
+    authors: z.array(z.string()),
 });
+
+declare module 'react-select' {
+    interface Props<OptionType> {
+        onCreateOption?: (inputValue: string) => void;
+    }
+}
 
 // Crée le composant du formulaire
 function BookForm() {
@@ -90,18 +103,18 @@ function BookForm() {
     const [loading, setLoading] = useState(false);
 
     // Initialise le hook useForm
-    const { setValue } = useForm<FormData>();
+    const { handleSubmit, register, setValue } = useForm<FormData>();
 
-    type BookFormValues = z.infer<typeof bookSchema>;
+    type BookFormValues = z.infer<typeof formSchema>;
 
-    const form = useForm({
-        resolver: zodResolver(bookSchema),
+    const form = useForm<BookFormValues>({
+        resolver: zodResolver(formSchema),
         defaultValues: {
             title: '',
             imgUrl: '',
             description: '',
             type: '',
-            category: '',
+            category: 'Cat1',
             status: true,
             favorite: true,
             authors: [],
@@ -210,6 +223,8 @@ function BookForm() {
 
     const [categories, setCategories] = useState<Category[]>([]);
 
+    const [isMounted, setIsMounted] = useState(true);
+
     // Fonction pour chercher les données dans la BD prisma et afficher
     useEffect(() => {
         // console.log('Fetching data...');
@@ -237,6 +252,8 @@ function BookForm() {
             // console.log('BookForm fetchData cleanup');
         };
     }, []);
+
+    // const [loadingAuthors, setLoadingAuthors] = useState(false);
 
     useEffect(() => {
         const fetchAuthors = async () => {
@@ -290,14 +307,46 @@ function BookForm() {
         }
     };
 
+    // const handleAuthorSelection = (newValue: any, actionMeta: { action: string }): void => {
+    //     console.log('New Value:', newValue);
+    //     console.log('Action Meta:', actionMeta);
+
+    //     if (actionMeta.action === 'select-option' || actionMeta.action === 'create-option') {
+    //         setSelectedAuthors(newValue);
+
+    //         if (actionMeta.action === 'create-option') {
+    //             // Si un nouvel auteur a été créé, ajoute-le à la liste des auteurs sans réinitialiser la liste actuelle
+    //             const newAuthor = newValue[newValue.length - 1];
+    //             console.log('New Author:', newAuthor);
+    //             const newAuthorName = newAuthor
+    //                 ? (newAuthor.name || newAuthor.label || newAuthor.value || '').trim()
+    //                 : '';
+    //             console.log('New Author Name:', newAuthorName);
+    //             // Vérifie si le nouvel auteur est déjà présent dans la liste
+    //             const isAuthorAlreadySelected = selectedAuthors.some(
+    //                 (author) => author.name === newAuthorName
+    //             );
+    //             console.log('Is Author Already Selected:', isAuthorAlreadySelected);
+    //             // Ajoute le nouvel auteur uniquement s'il n'est pas déjà présent
+    //             if (!isAuthorAlreadySelected) {
+    //                 addAuthors([...selectedAuthors, { name: newAuthorName }]);
+    //             }
+    //         }
+    //     }
+    // };
+
     const handleAuthorChange = useCallback(
         (newAuthors: Author[]) => {
-            console.log('New Authors:', newAuthors);
             setSelectedAuthors(newAuthors);
             setValue('authors', newAuthors);
         },
         [setSelectedAuthors, setValue]
     );
+
+    // const CreatableSelect = dynamic(() => import('react-select/creatable'), { ssr: false });
+
+    // Dans votre formulaire parent
+    // console.log('Selected authors before rendering AuthorsSelect:', selectedAuthors);
 
     return (
         <Card className='w-[500px]'>
@@ -313,7 +362,7 @@ function BookForm() {
                     >
                         {/* Champ de titre */}
                         <FormField
-                            // control={form.control}
+                            control={form.control}
                             name='title'
                             render={({ field }) => (
                                 <FormItem>
@@ -321,9 +370,6 @@ function BookForm() {
                                     <FormControl>
                                         <Input
                                             placeholder='titre du livre'
-                                            // onChange={(e) => {
-                                            //     setValue('title', e.target.value);
-                                            // }}
                                             {...field}
                                             onChange={(e) => {
                                                 setBookTitle(e.target.value); // Met à jour le state bookTitle
@@ -425,9 +471,7 @@ function BookForm() {
                                         value={selectedAuthors}
                                         onChange={(selectedAuthors) => {
                                             handleAuthorChange(selectedAuthors);
-                                            field.onChange(selectedAuthors);
-                                            // console.log('valeur enregistrée', field.value);
-                                            // setValue('authors', selectedAuthors);
+                                            // field.onChange(selectedAuthors as Author[]);
                                         }}
                                         addAuthors={addAuthors}
                                         authors={authors}
@@ -448,11 +492,6 @@ function BookForm() {
                                             placeholder='Ecriz ici un petite description/sinopsis du livre'
                                             className='resize-none'
                                             {...field}
-                                            onChange={(e) => {
-                                                setBookTitle(e.target.value); // Met à jour le state bookTitle
-                                                field.onChange(e); // Appelle la fonction onChange du champ title du formulaire
-                                                // setValue('description', e.target.value);
-                                            }}
                                         />
                                     </FormControl>
                                     <FormDescription>
@@ -472,7 +511,6 @@ function BookForm() {
                                     <FormControl>
                                         <Select
                                             onValueChange={field.onChange}
-                                            // onValueChange={(value) => setValue('type', value)}
                                             defaultValue={field.value}
                                         >
                                             <SelectTrigger className='w-[180px]'>
@@ -491,42 +529,7 @@ function BookForm() {
                                         </Select>
                                     </FormControl>
                                     <FormDescription>
-                                        Choisir le type (Lire, manga, BD..)
-                                    </FormDescription>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                        {/* Champ de catégorie */}
-                        <FormField
-                            control={form.control}
-                            name='category'
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Categorie</FormLabel>
-                                    <FormControl>
-                                        <Select
-                                            onValueChange={field.onChange}
-                                            defaultValue={field.value}
-                                        >
-                                            <SelectTrigger className='w-[180px]'>
-                                                <SelectValue placeholder='Choisir une categorie' />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {categories.map((type) => (
-                                                    <SelectItem
-                                                        key={type.id}
-                                                        value={type.name}
-                                                    >
-                                                        {type.name}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    </FormControl>
-                                    <FormDescription>
-                                        Choisir la categorie du document (SF, roman, fantaisie)
+                                        Choisir le type de document (BD, Livre, Manga)
                                     </FormDescription>
                                     <FormMessage />
                                 </FormItem>
@@ -541,9 +544,6 @@ function BookForm() {
                                 <FormItem>
                                     <FormLabel>Status</FormLabel>
                                     <RadioGroup
-                                        // onValueChange={(value) =>
-                                        //     setValue('status', value === 'true')
-                                        // }
                                         onValueChange={(value) => field.onChange(value === 'true')}
                                         value={field.value ? 'true' : 'false'}
                                     >
@@ -577,14 +577,6 @@ function BookForm() {
                                         <Checkbox
                                             id='favorite'
                                             checked={field.value}
-                                            // onCheckedChange={(isChecked) =>
-                                            //     setValue(
-                                            //         'favorite',
-                                            //         typeof isChecked === 'boolean'
-                                            //             ? isChecked
-                                            //             : false
-                                            //     )
-                                            // }
                                             onCheckedChange={(checked) => field.onChange(checked)}
                                         />
                                         <Label

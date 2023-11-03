@@ -41,6 +41,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             ? existingCategory.id
             : (await prisma.category.create({ data: categoryData })).id;
 
+        console.log('Avant la requête à la base de données');
         const createdBook = await prisma.book.create({
             data: {
                 title: data.title,
@@ -57,23 +58,28 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 // userId:SessionId()
             },
         });
+        console.log('Après la requête à la base de données');
 
         const authorsArray = Array.isArray(data.authors) ? data.authors : [data.authors];
 
         for (const authorName of authorsArray) {
-            const existingAuthor = await prisma.author.findFirst({
-                where: { name: authorName },
-            });
-
-            if (existingAuthor) {
-                await prisma.author_Books.create({
-                    data: {
-                        authorId: existingAuthor.id,
-                        bookId: createdBook.id,
-                    },
+            if (authorName && authorName.trim() !== '') {
+                const existingAuthor = await prisma.author.findFirst({
+                    where: { name: authorName.trim() },
                 });
+
+                if (existingAuthor) {
+                    await prisma.author_Books.create({
+                        data: {
+                            authorId: existingAuthor.id,
+                            bookId: createdBook.id,
+                        },
+                    });
+                } else {
+                    console.error(`L'auteur "${authorName}" n'existe pas dans la base de données.`);
+                }
             } else {
-                console.error(`L'auteur "${authorName}" n'existe pas dans la base de données.`);
+                console.error("Le nom de l'auteur ne peut pas être null ou vide.");
             }
         }
 
