@@ -1,10 +1,8 @@
 {
     "functions": {
       "api/*": {
-        "runtime": "nodejs14.x",
-        "environment": {
-          "PRISMA_CLIENT_ENGINE_TYPE": "query-engine"
-        }
+        "runtime": "nodejs14.x"
       }
     }
   }
+  
