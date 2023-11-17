@@ -1,9 +1,5 @@
 {
-    "functions": {
-      "api/*": {
-        "runtime": "nodejs14"
-      }
-    }
+   
   }
   
   
