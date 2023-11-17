@@ -1,12 +1,6 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@now/next",
-      "config": { "prisma": "prisma generate" }
-    }
-  ]
+  "version": 2
+ 
 }
 
   
