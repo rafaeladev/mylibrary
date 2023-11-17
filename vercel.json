@@ -1,9 +1,10 @@
 {
     "functions": {
       "api/*": {
-        "runtime": "node@14.x"
+        "runtime": "nodejs14"
       }
     }
   }
+  
   
   
