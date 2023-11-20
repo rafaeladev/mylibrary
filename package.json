@@ -4,10 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build && prisma generate --schema=prisma/schema.prisma",
+    "build": "next build && prisma generate",
     "start": "next start",
     "lint": "next lint",
-    "prisma": "prisma generate --schema=prisma/schema.prisma"
+    "prisma": "prisma generate"
   },
   "type": "commonjs",
   "dependencies": {
