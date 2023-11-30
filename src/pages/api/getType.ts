@@ -1,6 +1,7 @@
 // pages/api/getType.ts
 import { NextApiRequest, NextApiResponse } from 'next';
 import { PrismaClient, Prisma } from '@prisma/client';
+
 const prisma = new PrismaClient();
 
 import { getType } from '../../models/type';

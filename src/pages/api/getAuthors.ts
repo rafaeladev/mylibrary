@@ -1,6 +1,7 @@
 // pages/api/getAuthors.ts
 import { NextApiRequest, NextApiResponse } from 'next';
 import { PrismaClient, Prisma } from '@prisma/client';
+
 const prisma = new PrismaClient();
 
 import { getAuthors } from '../../models/author';
