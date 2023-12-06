@@ -17,6 +17,7 @@ export const authOptions = {
             clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? '',
         }),
     ],
+    secret: process.env.AUTH_SECRET || '12345', // Ajoutez cette ligne
     callbacks: {
         session({ session, user }: any) {
             if (!session.user) return session;
