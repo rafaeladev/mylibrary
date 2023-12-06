@@ -49,7 +49,6 @@ interface FormData {
     category: string;
     status: boolean;
     favorite: boolean;
-    // authors: (string | { name: string })[];
     authors: Author[];
 }
 

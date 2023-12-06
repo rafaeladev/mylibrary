@@ -23,7 +23,7 @@ export default async function Navbar() {
             <div className='flex flex-col justify-items-start align-middle'>
                 <>
                     <Link
-                        href='/Library'
+                        href='/bibliotheque'
                         className={buttonVariants({ variant: 'ghost', size: 'sm' })}
                     >
                         Library
