@@ -2,17 +2,25 @@
 
 import MaxWidthWrapper from '@/components/MaxWidthWrapper';
 import BookShelves from '@/components/bookShelves/BookShelves';
-import { useEffect } from 'react';
+import Filter from '@/components/filter/Filter';
+import { useState } from 'react';
 
-const page = () => {
+const Page = () => {
+    const [filterBy, setFilterBy] = useState('');
     return (
         <MaxWidthWrapper>
             <div>
                 <h1>Bibliotheque</h1>
-                <BookShelves />
+                <div>
+                    <Filter
+                        filterBy={filterBy}
+                        setFilterBy={setFilterBy}
+                    />
+                    <BookShelves filterBy={filterBy} />
+                </div>
             </div>
         </MaxWidthWrapper>
     );
 };
 
-export default page;
+export default Page;

@@ -9,25 +9,47 @@ interface Books {
     description: string;
     imgUrl: string;
     favorite: boolean;
-    authors: [];
+    authors: string[];
     type: string;
     category: string;
     status: boolean;
 }
+interface BookShelvesProps {
+    filterBy: string;
+}
 
-function BookShelves() {
+function BookShelves({ filterBy }: BookShelvesProps) {
     const [booksList, setBooksList] = useState<Books[]>([]);
+
+    async function getAuthorsForBook(bookId: number): Promise<string[]> {
+        try {
+            const authorsResponse = await axios.get(`/api/getAuthorsForBook?bookId=${bookId}`);
+
+            // console.log('authorsResponse:', authorsResponse);
+            return authorsResponse.data.map((author: any) => author);
+        } catch (error) {
+            console.error('Erreur lors de la récupération des auteurs', error);
+            return [];
+        }
+    }
+
     // Fonction pour chercher les données dans la BD prisma et afficher
     useEffect(() => {
         // console.log('Fetching data...');
         const fetchData = async () => {
             try {
-                const [booksResponse] = await Promise.all([axios.get<Book[]>('/api/getBooks')]);
+                // const [booksResponse] = await Promise.all([axios.get<Book[]>('/api/getBooks')]);
+
+                const response = await axios.get(
+                    `/api/getBooks${filterBy ? `?filterBy=${filterBy}` : ''}`
+                );
+
+                const booksResponse = response.data;
 
                 // console.log('Fetched data:', booksResponse.data);
 
                 const booksWithTypeName = await Promise.all(
-                    booksResponse.data.map(async (book) => {
+                    booksResponse.map(async (book: Book) => {
                         // Récupérer le nom du type en utilisant getUniqueType
                         const typeResponse = await axios.get(
                             `/api/getUniqueType?typeId=${book.typeId}`
@@ -40,6 +62,9 @@ function BookShelves() {
                         );
                         const category = categoryResponse.data;
 
+                        // Récupérer le nom des auteurs du livre
+                        const authors = await getAuthorsForBook(book.id);
+
                         // Transformation du modèle PrismaBook en modèle Book
                         const showedBook: Books = {
                             id: book.id,
@@ -47,7 +72,7 @@ function BookShelves() {
                             description: book.description || '',
                             imgUrl: book.image || '',
                             favorite: book.favorite || false,
-                            authors: [], //
+                            authors: authors || 'Unknown Authors',
                             type: type?.name || 'Unknown Type',
                             category: category?.name || 'Unknown Category',
                             status: book.status,
@@ -70,9 +95,7 @@ function BookShelves() {
         return () => {};
     }, []);
 
-    console.log(booksList);
     const booksCardList = booksList.map((book) => {
-        console.log(book);
         return (
             <BookCard
                 key={book.id}
@@ -88,7 +111,6 @@ function BookShelves() {
             />
         );
     });
-    console.log(booksCardList);
 
     return (
         <>

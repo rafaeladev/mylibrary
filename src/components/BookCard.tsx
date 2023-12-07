@@ -16,7 +16,7 @@ interface CardCompProps {
     description: string;
     img: string;
     favorite: boolean;
-    authors: [];
+    authors: string[];
     type: string;
     category: string;
     status: boolean;
@@ -33,6 +33,12 @@ function BookCard({
     authors,
     status,
 }: CardCompProps) {
+    let authorsName: (string | JSX.Element)[] = authors;
+
+    if (authors.length > 1) {
+        authorsName = authors.map((name, index) => <li key={index}>{name}</li>);
+    }
+
     return (
         <Card
             className='lg:max-w-md w-full'
@@ -43,16 +49,9 @@ function BookCard({
                 <CardDescription>
                     {description}
                     {favorite && 'Coup de coeur!'}
-                    <p>
-                        Type :<span>{type}</span>
-                    </p>
-                    <p>
-                        Catégorie : <span>{category}</span>
-                    </p>
-
-                    <p>
-                        Status : <span>{status}</span>
-                    </p>
+                    Type :<span>{type}</span>
+                    Catégorie : <span>{category}</span>
+                    Status : <span>{status ? 'Présent dans la bilbiothèque' : 'Emprunté'}</span>
                 </CardDescription>
             </CardHeader>
             <CardContent>
@@ -65,7 +64,7 @@ function BookCard({
                 <img src={img} />
             </CardContent>
             <CardFooter>
-                <p>{authors}</p>
+                {authors.length > 1 ? <ul>{authorsName}</ul> : <p>{authorsName}</p>}
             </CardFooter>
         </Card>
     );

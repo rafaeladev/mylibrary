@@ -222,7 +222,7 @@ function BookForm() {
                     axios.get<Category[]>('/api/getCategory'),
                 ]);
 
-                console.log('Fetched data:', typesResponse.data, categoriesResponse.data);
+                // console.log('Fetched data:', typesResponse.data, categoriesResponse.data);
 
                 // setTypes et setCategories sont sûrs à appeler même si le composant est démonté
                 setTypes(typesResponse.data);
