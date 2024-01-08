@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Book } from '../../../prisma/client';
 import BookCard from '../BookCard';
+import BookCover from '../BookCover';
 
 interface Books {
     id: number;
@@ -15,10 +16,11 @@ interface Books {
     status: boolean;
 }
 interface BookShelvesProps {
-    filterBy: string;
+    // filterBy: string;
+    APIResponse: number[];
 }
 
-function BookShelves({ filterBy }: BookShelvesProps) {
+function BookShelves({ APIResponse }: BookShelvesProps) {
     const [booksList, setBooksList] = useState<Books[]>([]);
 
     async function getAuthorsForBook(bookId: number): Promise<string[]> {
@@ -35,18 +37,24 @@ function BookShelves({ filterBy }: BookShelvesProps) {
 
     // Fonction pour chercher les données dans la BD prisma et afficher
     useEffect(() => {
-        // console.log('Fetching data...');
+        console.log('Fetching data...');
         const fetchData = async () => {
             try {
                 // const [booksResponse] = await Promise.all([axios.get<Book[]>('/api/getBooks')]);
 
-                const response = await axios.get(
-                    `/api/getBooks${filterBy ? `?filterBy=${filterBy}` : ''}`
-                );
+                let apiUrl = '/api/getBooks';
+
+                if (APIResponse.length > 0) {
+                    // Utilisez l'API avec le filtre par ID
+                    apiUrl = `/api/getBooks?filter=id:in:${APIResponse.join(',')}`;
+                }
+
+                console.log('apiUrl avec filter', apiUrl);
+                const response = await axios.get(apiUrl);
 
                 const booksResponse = response.data;
 
-                // console.log('Fetched data:', booksResponse.data);
+                console.log('Fetched data:', booksResponse.data);
 
                 const booksWithTypeName = await Promise.all(
                     booksResponse.map(async (book: Book) => {
@@ -83,6 +91,7 @@ function BookShelves({ filterBy }: BookShelvesProps) {
                 );
 
                 // setTypes et setCategories sont sûrs à appeler même si le composant est démonté
+                console.log('Updating state with books:', booksWithTypeName);
                 setBooksList(booksWithTypeName);
             } catch (error) {
                 console.error('Erreur lors de la récupération des données', error);
@@ -93,29 +102,35 @@ function BookShelves({ filterBy }: BookShelvesProps) {
 
         // Nettoyage de l'effet
         return () => {};
-    }, []);
+    }, [APIResponse]);
 
     const booksCardList = booksList.map((book) => {
         return (
-            <BookCard
+            // <BookCard
+            //     key={book.id}
+            //     id={book.id}
+            //     title={book.title}
+            //     description={book.description}
+            //     img={book.imgUrl}
+            //     favorite={book.favorite}
+            //     type={book.type}
+            //     category={book.category}
+            //     authors={book.authors}
+            //     status={book.status}
+            // />
+
+            <BookCover
                 key={book.id}
                 id={book.id}
-                title={book.title}
-                description={book.description}
                 img={book.imgUrl}
-                favorite={book.favorite}
-                type={book.type}
-                category={book.category}
-                authors={book.authors}
-                status={book.status}
             />
         );
     });
 
     return (
         <>
-            <h1>Book List</h1>
-            {booksCardList}
+            {/* <h1>Book List</h1> */}
+            <div className='flex gap-5'>{booksCardList}</div>
         </>
     );
 }

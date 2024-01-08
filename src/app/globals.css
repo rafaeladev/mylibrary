@@ -2,6 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
+/* vert : 79, 28%, 44% */
+/* rose : 343, 37%, 49% */
+/* marrom :18, 36%, 51% */
+/* beige : 27, 34%, 65% */
+/* violet : 330, 20%, 27% */
+
+@font-face {
+    font-family: 'DreamingOutLoud';
+    src: url('dreaming-outloud-regular.otf');
+}
+
+@font-face {
+    font-family: 'BetterTogether';
+    src: url('BetterTogether.otf');
+}
+
 @layer base {
     :root {
         --background: 0 0% 100%;
@@ -13,16 +29,16 @@
         --popover: 0 0% 100%;
         --popover-foreground: 240 10% 3.9%;
 
-        --primary: 240 5.9% 10%;
+        --primary: 330, 20%, 27%;
         --primary-foreground: 0 0% 98%;
 
-        --secondary: 240 4.8% 95.9%;
+        --secondary: 343, 37%, 49%;
         --secondary-foreground: 240 5.9% 10%;
 
         --muted: 240 4.8% 95.9%;
         --muted-foreground: 240 3.8% 46.1%;
 
-        --accent: 240 4.8% 95.9%;
+        --accent: 27 34% 65%;
         --accent-foreground: 240 5.9% 10%;
 
         --destructive: 0 84.2% 60.2%;

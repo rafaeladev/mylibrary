@@ -3,6 +3,7 @@
 import './globals.css';
 import { cn } from '@/lib/utils';
 import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
 
 // const inter = Inter({ subsets: ['latin'] });
 
@@ -14,10 +15,11 @@ import Navbar from '@/components/Navbar';
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
         <html lang='en'>
-            <body className={cn('min-h-screen font-sans antialiased grainy')}>
+            <body className={cn('min-h-screen font-sans antialiased grainy w-full h-full')}>
                 {/* , inter.className */}
                 <Navbar />
                 {children}
+                <Footer />
             </body>
         </html>
     );

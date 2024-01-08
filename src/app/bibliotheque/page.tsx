@@ -6,19 +6,20 @@ import Filter from '@/components/filter/Filter';
 import { useState } from 'react';
 
 const Page = () => {
-    const [filterBy, setFilterBy] = useState('');
+    // const [filterBy, setFilterBy] = useState<string>('');
+    const [APIResponse, setAPIResponse] = useState<number[]>([]);
     return (
         <MaxWidthWrapper>
-            <div>
-                <h1>Bibliotheque</h1>
-                <div>
-                    <Filter
-                        filterBy={filterBy}
-                        setFilterBy={setFilterBy}
-                    />
-                    <BookShelves filterBy={filterBy} />
-                </div>
+            <h1>Bibliotheque</h1>
+            <div className='flex justify-center gap-2'>
+                <Filter
+                    // filterBy={filterBy}
+                    // setFilterBy={setFilterBy}
+                    APIResponse={APIResponse}
+                    setAPIResponse={setAPIResponse}
+                />
             </div>
+            <BookShelves APIResponse={APIResponse} />
         </MaxWidthWrapper>
     );
 };
