@@ -27,7 +27,7 @@ function BookCover({
             className='lg:max-w-md w-full bg-mc-white drop-shadow-std hover:bg-mc-beige transition-all'
             key={id}
         >
-            <Link href='/bibliotheque'>
+            <Link href={`/bibliotheque/${id}`}>
                 <CardContent>
                     {/* <Image
                     src={img}

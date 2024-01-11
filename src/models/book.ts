@@ -17,3 +17,7 @@ export const getBooks = async (filterBy?: number[]) => {
         return await prisma.book.findMany();
     }
 };
+
+export const getUniqueBook = async (bookId: number) => {
+    return prisma.book.findUnique({ where: { id: bookId } });
+};
