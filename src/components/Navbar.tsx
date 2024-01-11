@@ -20,7 +20,7 @@ export default async function Navbar() {
       <div className="flex w-full  justify-center align-middle ">
         <>
           <Link
-            href="/bibliotheque"
+            href="/"
             className={buttonVariants({ variant: "ghost", size: "sm" })}
           >
             ACCUEIL

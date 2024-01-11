@@ -333,7 +333,13 @@ function BookForm() {
                 name="imgUrl"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Couverture</FormLabel>
+                    <div
+                      className={
+                        "relative after:absolute  after:right-0 after:top-1/2 after:-z-50 after:h-px after:w-full after:bg-mc-gray after:content-['']"
+                      }
+                    >
+                      <FormLabel>Couverture</FormLabel>
+                    </div>
 
                     {loading && <Progress value={70} />}
 
@@ -376,10 +382,16 @@ function BookForm() {
                 name="title"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Titre du livre</FormLabel>
+                    <div
+                      className={
+                        "relative after:absolute  after:right-0 after:top-1/2 after:-z-50 after:h-px after:w-full after:bg-mc-gray after:content-['']"
+                      }
+                    >
+                      <FormLabel>Titre du livre</FormLabel>
+                    </div>
                     <FormControl>
                       <Input
-                        className="text-3xl my-auto pb-6 pt-10 text-left font-serif"
+                        className="my-auto pb-6 pt-10 text-left font-serif text-3xl"
                         placeholder="Titre du livre"
                         // onChange={(e) => {
                         //     setValue('title', e.target.value);
@@ -403,10 +415,10 @@ function BookForm() {
                   <FormItem>
                     <div
                       className={
-                        "after:bg-mc-gray relative after:absolute after:top-1/2 after:h-0.5 after:w-5/6 after:pl-2 after:content-['']"
+                        "relative after:absolute  after:right-0 after:top-1/2 after:-z-50 after:h-px after:w-full after:bg-mc-gray after:content-['']"
                       }
                     >
-                      <FormLabel className="bg-mc-white">Couverture</FormLabel>
+                      <FormLabel>Couverture</FormLabel>
                     </div>
 
                     <FormDescription>
@@ -458,7 +470,13 @@ function BookForm() {
                 name="authors"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>AUTEURS</FormLabel>
+                    <div
+                      className={
+                        "relative after:absolute  after:right-0 after:top-1/2 after:-z-50 after:h-px after:w-full after:bg-mc-gray after:content-['']"
+                      }
+                    >
+                      <FormLabel>AUTEURS</FormLabel>
+                    </div>
                     <FormDescription>
                       Sélectionner un ou plusieurs auteurs
                     </FormDescription>
@@ -483,7 +501,13 @@ function BookForm() {
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Avis</FormLabel>
+                    <div
+                      className={
+                        "relative after:absolute  after:right-0 after:top-1/2 after:-z-50 after:h-px after:w-full after:bg-mc-gray after:content-['']"
+                      }
+                    >
+                      <FormLabel>AVIS</FormLabel>
+                    </div>
                     <FormControl>
                       <Textarea
                         placeholder="Ecriz ici un petite description/sinopsis du livre"
@@ -503,7 +527,13 @@ function BookForm() {
                   </FormItem>
                 )}
               />
-              <FormLabel>CLASSIFICATION</FormLabel>
+              <div
+                className={
+                  "relative after:absolute  after:right-0 after:top-1/2 after:-z-50 after:h-px after:w-full after:bg-mc-gray after:content-['']"
+                }
+              >
+                <FormLabel>CLASSIFICATION</FormLabel>
+              </div>
               <div className="grid grid-cols-2 ">
                 {/* Champ de type */}
                 <FormField
@@ -570,8 +600,13 @@ function BookForm() {
                 />
               </div>
 
-              <FormLabel>EN BREF...</FormLabel>
-
+              <div
+                className={
+                  "relative after:absolute  after:right-0 after:top-1/2 after:-z-50 after:h-px after:w-full after:bg-mc-gray after:content-['']"
+                }
+              >
+                <FormLabel>EN BREF...</FormLabel>
+              </div>
               <div className="grid grid-cols-2">
                 {/* Champ de statut avec radio buttons */}
                 <FormField
