@@ -1,4 +1,5 @@
-import React from "react";
+import { useState } from "react";
+import { useRouter } from "next/router";
 
 import {
   Card,
@@ -15,6 +16,15 @@ import Image from "next/image";
 
 import { Heart } from "lucide-react";
 
+import DeleteBookModal from "./DeleteBookModal";
+
+interface NextConfig {
+  publicRuntimeConfig: {
+    basePath: string;
+    // Autres configurations ici
+  };
+}
+
 interface CardCompProps {
   id: number;
   title: string;
@@ -25,6 +35,7 @@ interface CardCompProps {
   type: string;
   category: string;
   status: boolean;
+  rate: number;
 }
 
 function BookCard({
@@ -37,20 +48,47 @@ function BookCard({
   category,
   authors,
   status,
+  rate,
 }: CardCompProps) {
   let authorsName: (string | JSX.Element)[] = authors;
 
   if (authors.length > 1) {
     authorsName = authors.map((name, index) => <li key={index}>{name}</li>);
   }
+  // const router = useRouter();
+  // suprimer des livres
+  const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
+  const handleDeleteClick = () => {
+    // Ouvrir le modal lorsque l'utilisateur clique sur "Supprimer"
+    setDeleteModalOpen(true);
+  };
+
+  // Icons images
+  const starImg = `/images/star.png`;
+  const fullStarImg = `/images/star-full.png`;
+  const heartImg = `/images/heart-full.png`;
+
+  const starFull = (
+    <Image src={fullStarImg} alt="Icone star rempli" width={25} height={25} />
+  );
+  const starEmpty = (
+    <Image src={starImg} alt="Star vide icon" width={25} height={25} />
+  );
+
+  let divRate = [starEmpty, starEmpty, starEmpty, starEmpty, starEmpty];
+
+  for (let i = 0; i < rate; i++) {
+    divRate[i] = starFull;
+  }
 
   return (
     <Card className="w-full" key={id}>
       <CardContent className="grid grid-cols-3  gap-x-8 px-16 align-middle">
-        <image className={"ml-auto"}>
-          <Image src={img} alt={"Cover Page"} width={180} height={250} />
-        </image>
-        <div className="col-span-1.5 text-left text-mc-violet">
+        <figure className={"ml-auto flex items-center"}>
+          {/* <Image src={img} alt={"Cover Page"} width={180} height={250} /> */}
+          <img src={img} alt={"Cover Page"} width={180} height={250} />
+        </figure>
+        <div className="col-span-2 text-left text-mc-violet">
           <div>
             <h3 className="uppercase text-mc-beige">TITRE</h3>
             <CardTitle className="pl-2">{title}</CardTitle>
@@ -70,14 +108,15 @@ function BookCard({
             </div>
             <div>
               <h3 className="uppercase text-mc-beige">Note</h3>
-              <p className="pl-2">En cours...</p>
+
+              <div className="flex gap-1"> {divRate}</div>
             </div>
-            <div className={`mt-auto text-mc-violet`}>
-              <Heart
-                fill={`${favorite ? "true" : "false"}`}
-                color="text-mc-violet"
-                className="mr-2 inline"
-              />
+            <div className={`mt-auto flex gap-2 text-mc-violet`}>
+              {favorite ? (
+                <Image src={heartImg} alt="Mon Image" width={25} height={25} />
+              ) : (
+                ""
+              )}
               <span className="uppercase text-mc-beige">COUP DE CEUR</span>
             </div>
             <div>
@@ -110,9 +149,19 @@ function BookCard({
                 size: "lg",
                 className: "mt-5",
               })}
+              onClick={handleDeleteClick}
             >
               Supprimer
             </button>
+            {/* DeleteBookModal */}
+            {isDeleteModalOpen && (
+              <DeleteBookModal
+                bookId={id}
+                onClose={() => setDeleteModalOpen(false)}
+                isOpen={isDeleteModalOpen}
+                // router={router}
+              />
+            )}
           </div>
         </div>
       </CardContent>

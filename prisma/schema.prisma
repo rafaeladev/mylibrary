@@ -71,6 +71,7 @@ model Book {
   typeId      Int
   category    Category       @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   categoryId  Int
+  rate        Int
   authors     Author_Books[]
 }
 

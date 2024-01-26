@@ -16,6 +16,7 @@ interface Books {
   type: string;
   category: string;
   status: boolean;
+  rate: number;
 }
 
 interface BookDetailsProps {
@@ -46,7 +47,7 @@ export default function BookDetails({ bookId }: BookDetailsProps) {
 
   // Fonction pour chercher les données dans la BD prisma et afficher
   useEffect(() => {
-    console.log("useEffect appellé");
+    // console.log("useEffect appellé");
     const fetchData = async () => {
       try {
         let apiUrl = `/api/getUniqueBook?bookId=${bookId}`;
@@ -54,9 +55,8 @@ export default function BookDetails({ bookId }: BookDetailsProps) {
         const response = await axios.get(apiUrl);
         const booksResponse = response.data;
 
-        console.log("Response data", booksResponse);
+        // console.log("Response data", booksResponse);
 
-        console.log(booksResponse);
         // const booksWithTypeName = await Promise.all(
         //     booksResponse.map(async (book: Book) => {
         // Récupérer le nom du type en utilisant getUniqueType
@@ -85,6 +85,7 @@ export default function BookDetails({ bookId }: BookDetailsProps) {
           type: type?.name || "Unknown Type",
           category: category?.name || "Unknown Category",
           status: booksResponse.status,
+          rate: booksResponse.rate,
         };
 
         //     })
@@ -93,7 +94,7 @@ export default function BookDetails({ bookId }: BookDetailsProps) {
         setBookDetails(showedBook);
 
         // setTypes et setCategories sont sûrs à appeler même si le composant est démonté
-        console.log("Updating state with books:", showedBook);
+        // console.log("Updating state with books:", showedBook);
         // setBookDetails(showedBook);
       } catch (error) {
         console.error("Erreur lors de la récupération des données", error);
@@ -106,7 +107,7 @@ export default function BookDetails({ bookId }: BookDetailsProps) {
     // return () => {};
   }, []);
 
-  console.log("Book Details : ", bookDetails);
+  // console.log("Book Details : ", bookDetails);
 
   async function handleDelete(bookId: number) {}
 
@@ -126,44 +127,8 @@ export default function BookDetails({ bookId }: BookDetailsProps) {
         category={bookDetails.category}
         authors={bookDetails.authors}
         status={bookDetails.status}
+        rate={bookDetails.rate}
       />
-
-      {/* {isLoggedIn && (
-        <div className="flex justify-center gap-10">
-   
-          <button
-            className={buttonVariants({ size: "lg", className: "mt-5" })}
-            onClick={() => setEditedBook(bookDetails)}
-          >
-            Modifier
-          </button>
-
-          <button
-            className={buttonVariants({
-              variant: "destructive",
-              size: "lg",
-              className: "mt-5",
-            })}
-            onClick={() => handleDelete(bookDetails.id)}
-          >
-            Supprimer
-          </button>
-        </div>
-      )} */}
-
-      {/* <div>
-       
-        <button
-          className={buttonVariants({
-            variant: "secondary",
-            size: "lg",
-            className: "mt-5",
-          })}
-          onClick={() => handleDelete(bookDetails.id)}
-        >
-          Modifier
-        </button>
-      </div> */}
     </>
   );
 }

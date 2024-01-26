@@ -9,8 +9,7 @@ import Logout from "./Logout";
 export default async function Navbar() {
   const session = await getAuthSession();
   return (
-    <nav className=" boder-gray-200 inset-x-0 w-full border-r bg-mc-marrom p-2 text-mc-white backdrop-blur-lg transition-all">
-      {/* <MaxWidthWrapper> */}
+    <nav className="inset-l-0 fixed top-0 w-full bg-mc-marrom p-2 text-mc-white backdrop-blur-lg transition-all sm:w-full">
       <div className="flex w-full items-center justify-center">
         <Link href="/" className="z-40 flex text-center font-serif text-2xl ">
           <span>Bibliela</span>
@@ -45,7 +44,6 @@ export default async function Navbar() {
           )}
         </>
       </div>
-      {/* </MaxWidthWrapper> */}
     </nav>
   );
 }

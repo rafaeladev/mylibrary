@@ -1,7 +1,10 @@
-/** @type {import('next').NextConfig} */
+// next.config.js
 const nextConfig = {
   images: {
     domains: ["books.google.com"],
+  },
+  publicRuntimeConfig: {
+    basePath: process.env.BASE_PATH || "",
   },
 };
 

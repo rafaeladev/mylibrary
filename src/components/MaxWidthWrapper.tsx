@@ -10,10 +10,12 @@ function MaxWidthWrapper({
 }) {
   return (
     <main
-      className={cn(
-        "max-auto mx-auto mb-auto mt-32 w-full max-w-screen-2xl px-6 ",
-        className,
-      )}
+      // className={cn(
+      //   "max-auto mx-auto mb-auto mt-32 w-full max-w-screen-2xl px-6",
+      //   "sm:max-h-screen sm:w-full",
+      //   className,
+      // )}
+      className={"mx-auto mt-32 w-full max-w-screen-2xl px-6"}
     >
       {children}
     </main>

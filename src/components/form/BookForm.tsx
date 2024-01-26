@@ -46,6 +46,8 @@ import axios from "axios";
 
 import AuthorsSelect from "./AuthorsSelect";
 
+import Image from "next/image";
+
 // Déclare l'interface pour les données du formulaire
 interface FormData {
   title: string;
@@ -56,6 +58,7 @@ interface FormData {
   status: boolean;
   favorite: boolean;
   authors: Author[];
+  rate: number;
 }
 
 // Image par défaut
@@ -87,7 +90,67 @@ const bookSchema = object({
   status: boolean(),
   favorite: boolean(),
   authors: array(string()), // Adapté à ta structure d'auteurs
+  rate: z.number().min(0).max(5),
 });
+
+interface StarIconProps {
+  filled: boolean;
+  onClick: () => void;
+}
+
+// ===== Gestion rating ======
+// Icons images
+const starImg = "/images/star.png";
+const fullStarImg = "/images/star-full.png";
+
+// Component for a single star
+const StarIcon: React.FC<StarIconProps> = ({ filled, onClick }) => (
+  <div onClick={onClick} className="cursor-pointer">
+    <Image
+      src={filled ? fullStarImg : starImg}
+      alt="Star Icon"
+      width={25}
+      height={25}
+    />
+  </div>
+);
+
+// Component for the star rating input
+interface StarRatingInputProps {
+  value: number;
+  onChange: (value: number) => void;
+}
+
+const StarRatingInput: React.FC<StarRatingInputProps> = ({
+  value,
+  onChange,
+}) => {
+  const handleClick = (index: number) => {
+    const newValue = index + 1;
+
+    // Si la note est déjà celle-ci, on la réduit à zéro
+    const updatedValue = newValue === value ? 0 : newValue;
+
+    onChange(updatedValue);
+  };
+
+  const stars = Array(5)
+    .fill(null)
+    .map((_, index) => (
+      <StarIcon
+        key={index}
+        filled={index < value}
+        onClick={() => {
+          handleClick(index);
+          console.log("New Rating Value:", value); // Ajoutez cette ligne
+        }}
+      />
+    ));
+
+  return <div className="flex gap-1">{stars}</div>;
+};
+
+// ===== FIN Gestion rating ======
 
 // Crée le composant du formulaire
 function BookForm() {
@@ -98,6 +161,8 @@ function BookForm() {
   const { setValue } = useForm<FormData>();
 
   type BookFormValues = z.infer<typeof bookSchema>;
+  // Notation
+  const [rate, setRate] = useState(0);
 
   const form = useForm({
     resolver: zodResolver(bookSchema),
@@ -110,8 +175,10 @@ function BookForm() {
       status: true,
       favorite: true,
       authors: [],
+      rate: rate,
     },
     mode: "onChange",
+    shouldUnregister: true,
   });
 
   // initialise la recherche de la couverture
@@ -145,6 +212,7 @@ function BookForm() {
           ...data,
           imgUrl: coverUrl,
           authors: selectedAuthors.map((value) => value.value),
+          rate: rate,
           // authors: selectedAuthors,
         }),
       });
@@ -496,6 +564,26 @@ function BookForm() {
                 )}
               />
 
+              {/* Champ de notation */}
+              <FormField
+                name="notation"
+                render={({ field }) => (
+                  <FormItem>
+                    <div
+                      className={
+                        "relative after:absolute  after:right-0 after:top-1/2 after:-z-50 after:h-px after:w-full after:bg-mc-gray after:content-['']"
+                      }
+                    >
+                      <FormLabel>NOTATION</FormLabel>
+                    </div>
+                    <FormControl>
+                      <StarRatingInput value={rate} onChange={setRate} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               {/* Champ de description */}
               <FormField
                 name="description"
@@ -552,7 +640,10 @@ function BookForm() {
                           </SelectTrigger>
                           <SelectContent>
                             {types.map((type) => (
-                              <SelectItem key={type.id} value={type.name}>
+                              <SelectItem
+                                key={type.id}
+                                value={type.name !== "" ? type.name : "default"}
+                              >
                                 {type.name}
                               </SelectItem>
                             ))}
@@ -584,7 +675,10 @@ function BookForm() {
                           </SelectTrigger>
                           <SelectContent>
                             {categories.map((type) => (
-                              <SelectItem key={type.id} value={type.name}>
+                              <SelectItem
+                                key={type.id}
+                                value={type.name !== "" ? type.name : "default"}
+                              >
                                 {type.name}
                               </SelectItem>
                             ))}
@@ -672,9 +766,7 @@ function BookForm() {
               </div>
 
               {/* Bouton de soumission du formulaire */}
-              <Button type="submit" disabled={!form.formState.isValid}>
-                Ajouter Livre
-              </Button>
+              <Button type="submit">Ajouter Livre</Button>
             </div>
           </form>
         </Form>

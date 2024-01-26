@@ -1,27 +1,27 @@
-'use client';
+"use client";
 
-import MaxWidthWrapper from '@/components/MaxWidthWrapper';
-import BookShelves from '@/components/bookShelves/BookShelves';
-import Filter from '@/components/filter/Filter';
-import { useState } from 'react';
+import MaxWidthWrapper from "@/components/MaxWidthWrapper";
+import BookShelves from "@/components/bookShelves/BookShelves";
+import Filter from "@/components/filter/Filter";
+
+import { useState } from "react";
 
 const Page = () => {
-    // const [filterBy, setFilterBy] = useState<string>('');
-    const [APIResponse, setAPIResponse] = useState<number[]>([]);
-    return (
-        <MaxWidthWrapper>
-            <h1>Bibliotheque</h1>
-            <div className='flex justify-center gap-2'>
-                <Filter
-                    // filterBy={filterBy}
-                    // setFilterBy={setFilterBy}
-                    APIResponse={APIResponse}
-                    setAPIResponse={setAPIResponse}
-                />
-            </div>
-            <BookShelves APIResponse={APIResponse} />
-        </MaxWidthWrapper>
-    );
+  const [filterBy, setFilterBy] = useState<string>("");
+  const [APIResponse, setAPIResponse] = useState<number[]>([]);
+  return (
+    <>
+      <div className="flex flex-col gap-2 md:flex-row md:justify-center">
+        <Filter
+          // filterBy={filterBy}
+          // setFilterBy={setFilterBy}
+          APIResponse={APIResponse}
+          setAPIResponse={setAPIResponse}
+        />
+      </div>
+      <BookShelves APIResponse={APIResponse} />
+    </>
+  );
 };
 
 export default Page;

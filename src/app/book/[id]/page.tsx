@@ -24,6 +24,7 @@ interface Book {
 
 const page: FC<pageProps> = ({ params }) => {
   const bookId = params.id;
+
   return (
     <div className=" mx-auto flex flex-col justify-center text-center">
       <PageTitle title="Consulter" color="marrom" />
