@@ -53,48 +53,17 @@ function BookShelves({ filters }: BookShelvesProps) {
           authorId: filters?.find(
             (filter: FilterType) => filter.filterBy === "author",
           )?.filterValue,
+          status: filters?.find(
+            (filter: FilterType) => filter.filterBy === "status",
+          )?.filterValue,
+          favorite: filters?.find(
+            (filter: FilterType) => filter.filterBy === "favorite",
+          )?.filterValue,
         },
       });
 
       const booksResponse = response.data;
 
-      console.log(booksResponse);
-      // const booksWithTypeName = await Promise.all(
-      //   booksResponse.map(async (book: Book) => {
-      //     // Récupérer le nom du type en utilisant getUniqueType
-      //     const typeResponse = await axios.get(
-      //       `/api/getUniqueType?typeId=${book.typeId}`,
-      //     );
-      //     const type = typeResponse.data;
-
-      //     // Récupérer le nom de la categorie en utilisant getUniqueCat
-      //     const categoryResponse = await axios.get(
-      //       `/api/getUniqueCategory?categoryId=${book.categoryId}`,
-      //     );
-      //     const category = categoryResponse.data;
-
-      //     // Récupérer le nom des auteurs du livre
-      //     const authors = await getAuthorsForBook(book.id);
-
-      //     // Transformation du modèle PrismaBook en modèle Book
-      //     const showedBook: Books = {
-      //       id: book.id,
-      //       title: book.title,
-      //       description: book.description || "",
-      //       imgUrl: book.image || "",
-      //       favorite: book.favorite || false,
-      //       authors: authors || "Unknown Authors",
-      //       type: type?.name || "Unknown Type",
-      //       category: category?.name || "Unknown Category",
-      //       status: book.status,
-      //     };
-
-      //     return showedBook;
-      //   }),
-      // );
-
-      // setTypes et setCategories sont sûrs à appeler même si le composant est démonté
-      // console.log("Updating state with books:", booksWithTypeName);
       setBooksList(booksResponse);
     } catch (error) {
       console.error("Erreur lors de la récupération des données", error);
@@ -103,8 +72,6 @@ function BookShelves({ filters }: BookShelvesProps) {
 
   // Fonction pour chercher les données dans la BD prisma et afficher
   useEffect(() => {
-    console.log("Fetching data...");
-
     fetchData(filters);
 
     // Nettoyage de l'effet

@@ -58,8 +58,8 @@ const Filter: FC<FilterProps> = ({ filters, setFilters }) => {
   };
 
   const handleSelectFilter = (
-    filterBy: "category" | "type" | "author",
-    filterValue: number,
+    filterBy: "category" | "type" | "author" | "favorite" | "status",
+    filterValue: number | boolean,
   ) => {
     setFilters((previousState) => {
       if (previousState === null) {
@@ -123,11 +123,14 @@ const Filter: FC<FilterProps> = ({ filters, setFilters }) => {
             </option>
           ))}
         </select>
-        {/* <label className="flex justify-center gap-2 align-middle">
+        <label className="flex justify-center gap-2 align-middle">
           <input
             type="checkbox"
             checked={isFavorite}
-            onChange={() => setIsFavorite(!isFavorite)}
+            onChange={(e) => {
+              handleSelectFilter("favorite", e.target.checked);
+              setIsFavorite(!isFavorite);
+            }}
             className="my-auto h-4 w-4"
           />
           <p className="my-auto">Favorite</p>
@@ -135,12 +138,15 @@ const Filter: FC<FilterProps> = ({ filters, setFilters }) => {
         <label className="flex justify-center gap-2 align-middle">
           <input
             type="checkbox"
-            checked={isAvaiable}
-            onChange={() => setIsAvaiable(!isAvaiable)}
+            checked={isAvailable}
+            onChange={(e) => {
+              handleSelectFilter("status", e.target.checked);
+              setIsAvailable(!isAvailable);
+            }}
             className="my-auto h-4 w-4"
           />
           <p className="my-auto">Disponible</p>
-        </label> */}
+        </label>
       </div>
       <button onClick={clearFilters}>Clear filter</button>
     </div>

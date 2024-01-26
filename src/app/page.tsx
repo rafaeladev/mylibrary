@@ -1,6 +1,4 @@
 "use client";
-
-import MaxWidthWrapper from "@/components/MaxWidthWrapper";
 import BookShelves from "@/components/bookShelves/BookShelves";
 import Filter from "@/components/filter/Filter";
 
@@ -8,7 +6,7 @@ import { useState } from "react";
 
 export type FilterType = {
   filterBy: string | null;
-  filterValue: number | null;
+  filterValue: number | boolean | null;
 };
 
 const Page = () => {
