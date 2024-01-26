@@ -6,20 +6,19 @@ import Filter from "@/components/filter/Filter";
 
 import { useState } from "react";
 
+export type FilterType = {
+  filterBy: string | null;
+  filterValue: number | null;
+};
+
 const Page = () => {
-  const [filterBy, setFilterBy] = useState<string>("");
-  const [APIResponse, setAPIResponse] = useState<number[]>([]);
+  const [filters, setFilters] = useState<FilterType[] | null>(null);
   return (
     <>
       <div className="flex flex-col gap-2 md:flex-row md:justify-center">
-        <Filter
-          // filterBy={filterBy}
-          // setFilterBy={setFilterBy}
-          APIResponse={APIResponse}
-          setAPIResponse={setAPIResponse}
-        />
+        <Filter filters={filters} setFilters={setFilters} />
       </div>
-      <BookShelves APIResponse={APIResponse} />
+      <BookShelves filters={filters} />
     </>
   );
 };
