@@ -42,7 +42,11 @@ const Filter: FC<FilterProps> = ({ filters, setFilters }) => {
 
         setTypes(typesResponse.data);
         setCategories(categoriesResponse.data);
-        setAuthors(authorsResponse.data);
+        // Tri des auteurs par ordre alphabétique
+        const sortedAuthors = authorsResponse.data.sort((a, b) =>
+          a.name.localeCompare(b.name),
+        );
+        setAuthors(sortedAuthors);
       } catch (error) {
         console.error("Erreur lors de la récupération des données", error);
       }
@@ -82,9 +86,31 @@ const Filter: FC<FilterProps> = ({ filters, setFilters }) => {
 
   return (
     <div className="mb-10">
-      <div className="flex justify-center gap-4 align-middle">
+      <div className="flex w-full flex-wrap justify-center gap-4 align-middle">
         <p className="font-serif text-2xl text-mc-marrom">Filtres :</p>
         {/* <label> */}
+        <select
+          className="bg-mc-beige px-5 text-mc-white"
+          onChange={(e) => handleSelectFilter("author", Number(e.target.value))}
+        >
+          <option value="">Auteurs</option>
+          {authors.map((author) => (
+            <option key={author.id} value={author.id}>
+              {author.name}
+            </option>
+          ))}
+        </select>
+        <select
+          className="bg-mc-beige px-5 text-mc-white"
+          onChange={(e) => handleSelectFilter("type", Number(e.target.value))}
+        >
+          <option value="">Types</option>
+          {types.map((type) => (
+            <option key={type.id} value={type.id}>
+              {type.name}
+            </option>
+          ))}
+        </select>
         <select
           className="bg-mc-beige px-5 text-mc-white"
           onChange={(e) =>
@@ -100,29 +126,6 @@ const Filter: FC<FilterProps> = ({ filters, setFilters }) => {
         </select>
         {/* </label> */}
 
-        <select
-          className="bg-mc-beige px-5 text-mc-white"
-          onChange={(e) => handleSelectFilter("type", Number(e.target.value))}
-        >
-          <option value="">Types</option>
-          {types.map((type) => (
-            <option key={type.id} value={type.id}>
-              {type.name}
-            </option>
-          ))}
-        </select>
-
-        <select
-          className="bg-mc-beige px-5 text-mc-white"
-          onChange={(e) => handleSelectFilter("author", Number(e.target.value))}
-        >
-          <option value="">Authors</option>
-          {authors.map((author) => (
-            <option key={author.id} value={author.id}>
-              {author.name}
-            </option>
-          ))}
-        </select>
         <label className="flex justify-center gap-2 align-middle">
           <input
             type="checkbox"

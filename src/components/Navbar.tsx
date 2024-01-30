@@ -9,7 +9,7 @@ import Logout from "./Logout";
 export default async function Navbar() {
   const session = await getAuthSession();
   return (
-    <nav className="inset-l-0 fixed top-0 w-full bg-mc-marrom p-2 text-mc-white backdrop-blur-lg transition-all sm:w-full">
+    <nav className="inset-l-0 bg-header-vector fixed top-0  z-50 w-full  p-2  text-mc-white transition-all sm:w-full">
       <div className="flex w-full items-center justify-center">
         <Link href="/" className="z-40 flex text-center font-serif text-2xl ">
           <span>Bibliela</span>

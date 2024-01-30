@@ -1,6 +1,8 @@
 "use client";
+import MaxWidthWrapper from "@/components/MaxWidthWrapper";
 import BookShelves from "@/components/bookShelves/BookShelves";
 import Filter from "@/components/filter/Filter";
+import { Progress } from "@/components/ui/progress";
 
 import { useState } from "react";
 
@@ -11,12 +13,15 @@ export type FilterType = {
 
 const Page = () => {
   const [filters, setFilters] = useState<FilterType[] | null>(null);
+
   return (
     <>
-      <div className="flex flex-col gap-2 md:flex-row md:justify-center">
-        <Filter filters={filters} setFilters={setFilters} />
-      </div>
-      <BookShelves filters={filters} />
+      <>
+        <div className="flex flex-col gap-2 md:flex-row md:justify-center">
+          <Filter filters={filters} setFilters={setFilters} />
+        </div>
+        <BookShelves filters={filters} />
+      </>
     </>
   );
 };

@@ -1,9 +1,12 @@
-import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Book } from "../../../prisma/client";
-import BookCard from "../BookCard";
+import { useMediaQuery } from "react-responsive";
 import BookCover from "../BookCover";
 import { FilterType } from "@/app/page";
+import { Progress } from "@/components/ui/progress";
+
+import { cn } from "@/lib/utils";
+import { set } from "react-hook-form";
 
 interface Books {
   id: number;
@@ -20,16 +23,32 @@ interface BookShelvesProps {
   filters: FilterType[] | null;
 }
 
+// Fonction utilitaire pour diviser le tableau en lots
+const chunks = <T,>(arr: T[], size: number): T[][] => {
+  const result: T[][] = [];
+  for (let i = 0; i < arr.length; i += size) {
+    result.push(arr.slice(i, i + size));
+  }
+  return result;
+};
+
 function BookShelves({ filters }: BookShelvesProps) {
   const [booksList, setBooksList] = useState<Books[]>([]);
 
+  const [progress, setProgress] = useState(13);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Media query pour changer la mise en page
+  const isTablet = useMediaQuery({
+    query: "(min-width: 768px) and (max-width: 1024px)",
+  });
+  const isMobile = useMediaQuery({ query: "(max-width: 767px)" });
   async function getAuthorsForBook(bookId: number): Promise<string[]> {
     try {
       const authorsResponse = await axios.get(
         `/api/getAuthorsForBook?bookId=${bookId}`,
       );
 
-      // console.log('authorsResponse:', authorsResponse);
       return authorsResponse.data.map((author: any) => author);
     } catch (error) {
       console.error("Erreur lors de la récupération des auteurs", error);
@@ -39,9 +58,9 @@ function BookShelves({ filters }: BookShelvesProps) {
 
   const fetchData = async (filters: FilterType[] | null) => {
     try {
+      setIsLoading && setIsLoading(true);
       const apiUrl = "/api/getBooks";
 
-      // console.log("apiUrl avec filter", apiUrl);
       const response = await axios.get(apiUrl, {
         params: {
           categoryId: filters?.find(
@@ -63,10 +82,23 @@ function BookShelves({ filters }: BookShelvesProps) {
       });
 
       const booksResponse = response.data;
-
       setBooksList(booksResponse);
+
+      // Simulation d'une progression gradative
+      let progress = 0;
+      const intervalId = setInterval(() => {
+        progress += 10; // Ajustez selon le nombre d'étapes souhaité
+        setProgress(Math.min(progress, 100));
+
+        if (progress >= 100) {
+          clearInterval(intervalId);
+          setIsLoading && setIsLoading(false);
+        }
+      }, 100); // Ajustez l'intervalle de temps entre chaque étape
     } catch (error) {
       console.error("Erreur lors de la récupération des données", error);
+    } finally {
+      // setIsLoading && setIsLoading(false);
     }
   };
 
@@ -78,15 +110,52 @@ function BookShelves({ filters }: BookShelvesProps) {
     return () => {};
   }, [setBooksList, filters]);
 
-  const booksCardList = booksList.map((book) => {
-    return <BookCover key={book.id} id={book.id} img={book.image} />;
-  });
+  // Fonction pour déterminer la taille des lots en fonction de la taille de l'écran
+  const getChunkSize = () => {
+    if (isTablet) {
+      return 4; // Utilisez 4 éléments par ligne pour les tablettes
+    } else if (isMobile) {
+      return 1; // Utilisez 1 élément par ligne pour les mobiles
+    } else {
+      return 5; // Utilisez 5 éléments par ligne pour les autres tailles d'écran (par défaut)
+    }
+  };
+
+  // Diviser la liste de livres en lots avec la taille déterminée par la fonction getChunkSize
+  const booksChunks = chunks(booksList, getChunkSize());
+
+  // const booksCardList = booksList.map((book) => {
+  //   return <BookCover key={book.id} id={book.id} img={book.image} />;
+  // });
+
+  const booksCardList = booksChunks.map((chunk, index) => (
+    <div
+      key={index}
+      className={cn(
+        "border-x-8 border-t-8 border-mc-beige",
+        index % 2 === 0
+          ? "flex justify-center gap-4"
+          : "flex justify-center gap-4",
+      )}
+    >
+      {chunk.map((book) => (
+        <BookCover key={book.id} id={book.id} img={book.image} />
+      ))}
+    </div>
+  ));
 
   return (
     <>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-5">
-        {booksCardList}
-      </div>
+      {isLoading ? (
+        <Progress value={progress} />
+      ) : (
+        <>
+          <div className="fle-col bg--cover flex max-w-2xl flex-wrap">
+            {booksCardList}
+          </div>
+          <div className="mx-auto mb-56 h-6 max-w-2xl bg-mc-beige"></div>
+        </>
+      )}
     </>
   );
 }

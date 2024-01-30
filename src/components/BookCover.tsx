@@ -23,22 +23,25 @@ function BookCover({
   img,
 }: CardCompProps) {
   return (
-    <Card
-      className="w-full bg-mc-white drop-shadow-std transition-all hover:bg-mc-beige lg:max-w-md"
-      key={id}
-    >
-      <Link href={`/book/${id}`}>
-        <CardContent>
-          {/* <Image
-                    src={img}
-                    width={500}
-                    height={500}
-                    alt={`${title} image`}
-                /> */}
-          <img src={img} />
-        </CardContent>
-      </Link>
-    </Card>
+    <div>
+      <Card
+        className="lg:max-w-48 max-w-48 h-200px w-48 bg-mc-white drop-shadow-std transition-all hover:bg-mc-beige"
+        key={id}
+      >
+        <Link href={`/book/${id}`}>
+          <CardContent>
+            <Image
+              src={img}
+              width={500}
+              height={500}
+              alt={`${id} image`}
+              className="book-cover"
+            />
+            {/* <img src={img} height={200} alt={`${id} image`} /> */}
+          </CardContent>
+        </Link>
+      </Card>
+    </div>
   );
 }
 

@@ -34,8 +34,11 @@ module.exports = {
       center: true,
       padding: "2rem",
       screens: {
-        "2xl": "1400px",
+        "2xl": "1500px",
       },
+    },
+    maxWidth: {
+      "2xl": "1200px",
     },
     fontFamily: {
       sans: ["DreamingOutLoud", "sans-serif"],
@@ -47,6 +50,20 @@ module.exports = {
         "0 35px 35px rgba(0, 0, 0, 0.25)",
         "0 45px 65px rgba(0, 0, 0, 0.15)",
       ],
+    },
+    backgroundImage: {
+      "header-vector": "url('/images/header.svg')",
+      "footer-vector": "url('/images/footer.svg')",
+      "kiki-vector": "url('/images/kikis-broom-nuage 1.svg')",
+    },
+    borderWidth: {
+      DEFAULT: "1px",
+      "0": "0",
+      "2": "2px",
+      "3": "3px",
+      "4": "4px",
+      "6": "6px",
+      "8": "24px",
     },
     extend: {
       colors: {

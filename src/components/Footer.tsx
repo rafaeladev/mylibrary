@@ -5,26 +5,29 @@ import { getAuthSession } from "@/lib/nextauth";
 import { useSession } from "next-auth/react";
 import Login from "./Login";
 import Logout from "./Logout";
+import Image from "next/image";
+import kiki from "/public/images/kikis-broom-nuage 1.svg";
+import cafeMug from "/public/images/cafe-mug.svg";
 
 export default async function Navbar() {
   const session = await getAuthSession();
   return (
-    // <footer className=" h-22 boder-gray-200 inset-x-0 bottom-0 z-30 mt-auto flex w-full flex-col border-r bg-mc-beige p-2 text-mc-violet backdrop-blur-lg transition-all">
-    <footer className="fixed inset-x-0 bottom-0 z-30 w-full bg-mc-beige p-2 text-mc-violet">
-      {/* <MaxWidthWrapper> */}
-      <div className="flex w-full  justify-center align-middle ">
-        <p>
-          Designed by
-          <Link
-            href="/bibliotheque"
-            className={buttonVariants({ variant: "ghost", size: "sm" })}
-          >
-            Rafaela
-          </Link>
-          @2023
-        </p>
-      </div>
-      {/* </MaxWidthWrapper> */}
-    </footer>
+    <>
+      <footer className="boder-gray-200 bg-footer-vector  z-30 m-0  flex w-full flex-col p-0 text-mc-violet transition-all">
+        <div className="my-auto flex  w-full justify-center align-bottom">
+          <Image src={cafeMug} alt="cafe-mug" />
+          <p className="mt-auto h-fit w-40 text-center leading-3">
+            Designed by
+            <Link
+              href="https://www.rafaeladsdo.com/"
+              className={buttonVariants({ variant: "ghost", size: "sm" })}
+            >
+              Rafaela
+            </Link>
+            @2023
+          </p>
+        </div>
+      </footer>
+    </>
   );
 }
