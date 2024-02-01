@@ -1,10 +1,11 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { set, useForm } from "react-hook-form";
 import * as z from "zod";
 import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import Image from "next/image";
+import Link from "next/link";
 
 //======== Shadcn ui components ==========//
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -34,9 +35,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 
 import { Progress } from "@/components/ui/progress";
 
-import { Toaster } from "@/components/ui/toaster";
-import { useToast } from "@/components/ui/use-toast";
-
 //======== Shadcn ui components ==========//
 
 // Form components
@@ -45,13 +43,30 @@ import CategorySelect from "./CategorySelect";
 import SearchCover from "./SearchCover";
 import AuthorsSelect from "./AuthorsSelect";
 import StarRatingInput from "./StarRatingInput";
-import { title } from "process";
+import SuccessModal from "../SuccessModal";
 
 //Interface
 interface Author {
   id?: number;
   name: string;
   value?: string;
+}
+
+interface Book {
+  id: number;
+  title: string;
+  description: string;
+  imgUrl: string;
+  favorite: boolean;
+  authors: string[];
+  type: string;
+  category: string;
+  status: boolean;
+  rate: number;
+}
+
+interface NewFormProps {
+  selectedBook?: Book | null;
 }
 
 // Controle du formulaire
@@ -88,7 +103,7 @@ const formSchema = z.object({
   }),
 });
 
-function NewForm() {
+function NewForm({ selectedBook }: NewFormProps) {
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -108,15 +123,24 @@ function NewForm() {
   //=============================================================
   // 2. Define a submit handler.
 
+  // Loading
+  const [isLoading, setIsLoading] = useState(false);
   // Message submit :
-  const { toast } = useToast();
   const [successMessage, setSuccessMessage] = useState("");
   async function onSubmit(values: z.infer<typeof formSchema>) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
 
+    // Modifier un livre
+    if (selectedBook) {
+      handleSaveBook();
+      return setSuccessMessage("Le livre a été modifié avec succès!");
+    }
+
     // Prisma pour créer une nouvelle entrée dans la table Book
     try {
+      setIsEdition(false);
+      setIsLoading(true);
       form.setValue("rate", rate);
       const response = await fetch("/api/createBook", {
         method: "POST",
@@ -138,12 +162,9 @@ function NewForm() {
 
       if (response.ok) {
         console.log("Le livre a été enregistré avec succès.");
-        const responseData = await response.json();
-        // Après un envoi réussi, affichez le toast
-        toast({
-          description: "Le formulaire a été envoyé avec succès!",
-        });
+        // const responseData = await response.json();
         setSuccessMessage("Le livre a été sauvegardé avec succès!");
+        setSuccessModalOpen(true);
         // Réinitialiser le formulaire après un certain délai
         setTimeout(() => {
           form.reset({
@@ -175,6 +196,8 @@ function NewForm() {
       }
     } catch (error) {
       console.error("Erreur lors de la création du livre :", error);
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -314,371 +337,515 @@ function NewForm() {
     [setSelectedAuthors, form],
   );
   //=============================================================
+  //6. Edit mode management
+  const [isSuccessModalOpen, setSuccessModalOpen] = useState(false);
+  const [isEdition, setIsEdition] = useState(false);
+  // Définissez la fonction pour générer les valeurs par défaut
+  const getDefaultFormValues = () => {
+    if (selectedBook) {
+      setRate(selectedBook.rate);
+      setIsEdition(true);
+      const authorsChange = selectedBook.authors.map((author) => ({
+        value: author,
+        name: author,
+        label: author,
+      }));
+      handleAuthorChange(authorsChange);
+      setCoverUrl(selectedBook.imgUrl);
+      return {
+        coverShow: "",
+        title: selectedBook.title,
+        imgUrl: selectedBook.imgUrl,
+        authors: authorsChange.map((auteur_book) => auteur_book.name),
+        rate: selectedBook.rate,
+        description: selectedBook.description,
+        type: selectedBook.type || "",
+        category: selectedBook.category || "",
+        status: selectedBook.status,
+        favorite: selectedBook.favorite,
+      };
+    } else {
+      return {
+        coverShow: "",
+        title: "",
+        imgUrl: "",
+        authors: [],
+        rate: 0,
+        description: "",
+        type: "",
+        category: "",
+        status: false,
+        favorite: false,
+      };
+    }
+  };
+
+  //Fonction pour enregisterr la modification
+  const handleSaveBook = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch("/api/updateBook", {
+        method: "PUT", // ou "PATCH" en fonction de votre API
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: selectedBook?.id,
+          title: form.getValues("title"),
+          imgUrl: coverUrl,
+          authors: selectedAuthors.map((value) => value.name),
+          rate: rate,
+          description: form.getValues("description"),
+          type: form.getValues("type"),
+          category: form.getValues("category"),
+          status: form.getValues("status"),
+          favorite: form.getValues("favorite"),
+        }),
+      });
+
+      if (response.ok) {
+        console.log("Le livre a été mis à jour avec succès.");
+        setSuccessModalOpen(true);
+      } else {
+        console.error(
+          "Erreur lors de la mise à jour du livre :",
+          response.statusText,
+        );
+      }
+    } catch (error) {
+      console.error("Erreur lors de la mise à jour du livre :", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Mettez à jour les valeurs par défaut lorsque selectedBook change
+  useEffect(() => {
+    const newDefaultValues = getDefaultFormValues();
+    form.reset({
+      ...newDefaultValues,
+    });
+  }, [selectedBook]);
+  //=============================================================
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
   return (
-    <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="mb-24 grid grid-cols-3 text-left"
-      >
-        <div className="mx-auto">
-          {/* Champ de la couverture */}
-          <FormField
-            control={form.control}
-            name="coverShow"
-            render={() => (
-              <FormItem>
-                <div
-                  className={
-                    "relative after:absolute  after:right-0 after:top-1/2 after:-z-50 after:h-px after:w-full after:bg-mc-gray after:content-['']"
-                  }
-                >
-                  <FormLabel htmlFor="coverShow">Couverture</FormLabel>
-                </div>
-                <FormControl></FormControl>
-                <FormDescription></FormDescription>
-                {loading && <Progress value={70} />}
-                {/* Couverture par défaut */}
-                {!loading && !coverUrl && (
-                  <img
-                    src={defaultCoverUrl}
-                    alt="Couverture du livre par défaut"
-                    className="book-cover"
-                    width={"200"}
-                    height={"289"}
-                  />
-                )}
+    <>
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="mb-24 grid grid-cols-1 text-left sm:grid-cols-3"
+        >
+          <div className="mx-auto">
+            {/* Champ de la couverture */}
+            <FormField
+              control={form.control}
+              name="coverShow"
+              render={() => (
+                <FormItem>
+                  <div
+                    className={
+                      "relative after:absolute  after:right-0 after:top-1/2 after:-z-50 after:h-px after:w-full after:bg-mc-gray after:content-['']"
+                    }
+                  >
+                    <FormLabel htmlFor="coverShow">Couverture</FormLabel>
+                  </div>
+                  <FormControl></FormControl>
+                  <FormDescription></FormDescription>
+                  {loading && <Progress value={70} />}
+                  {/* Couverture par défaut */}
+                  {!loading && !coverUrl && (
+                    <img
+                      src={defaultCoverUrl}
+                      alt="Couverture du livre par défaut"
+                      className="book-cover"
+                      width={"200"}
+                      height={"289"}
+                    />
+                  )}
 
-                {!loading && !coverUrl && imageUrl && (
-                  <img
-                    src={imageUrl}
-                    alt="Couverture du livre"
-                    className="book-cover"
-                    width={"200"}
-                    height={"289"}
-                  />
-                )}
+                  {!loading && !coverUrl && imageUrl && (
+                    <img
+                      src={imageUrl}
+                      alt="Couverture du livre"
+                      className="book-cover"
+                      width={"200"}
+                      height={"289"}
+                    />
+                  )}
 
-                {/* On affiche la couverture de l'API */}
-                {loading && <p>Chargement en cours...</p>}
-                {coverUrl && !loading && (
-                  <img
-                    src={coverUrl}
-                    alt="Couverture du livre"
-                    className="book-cover"
-                    width={"200"}
-                    height={"289"}
-                  />
-                )}
+                  {/* On affiche la couverture de l'API */}
+                  {loading && <p>Chargement en cours...</p>}
+                  {coverUrl && !loading && (
+                    <img
+                      src={coverUrl}
+                      alt="Couverture du livre"
+                      className="book-cover"
+                      width={"200"}
+                      height={"289"}
+                    />
+                  )}
 
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-        <div className="col-span-2 mt-0">
-          {/* Champ de titre */}
-          <FormField
-            control={form.control}
-            name="title"
-            render={({ field }) => (
-              <FormItem>
-                <div
-                  className={
-                    "relative after:absolute  after:right-0 after:top-1/2 after:-z-50 after:h-px after:w-full after:bg-mc-gray after:content-['']"
-                  }
-                >
-                  <FormLabel htmlFor="title">Title</FormLabel>
-                </div>
-                <FormControl>
-                  <Input
-                    placeholder="Titre du livre"
-                    className="my-auto pb-6 pt-10 text-left font-serif text-3xl"
-                    {...field}
-                  />
-                </FormControl>
-                <FormDescription>{`C'est le titre du livre.`}</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          {/* Champ de recherche de couverture */}
-          <FormField
-            control={form.control}
-            name="imgUrl"
-            render={({ field }) => (
-              <FormItem>
-                <div
-                  className={
-                    "relative after:absolute  after:right-0 after:top-1/2 after:-z-50 after:h-px after:w-full after:bg-mc-gray after:content-['']"
-                  }
-                >
-                  <FormLabel htmlFor="imgUrl">Couverture</FormLabel>
-                </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          <div className="col-span-2 mt-0">
+            {/* Champ de titre */}
+            <FormField
+              control={form.control}
+              name="title"
+              render={({ field }) => (
+                <FormItem>
+                  <div
+                    className={
+                      "relative after:absolute  after:right-0 after:top-1/2 after:-z-50 after:h-px after:w-full after:bg-mc-gray after:content-['']"
+                    }
+                  >
+                    <FormLabel htmlFor="title">Title</FormLabel>
+                  </div>
+                  <FormControl>
+                    <Input
+                      placeholder="Titre du livre"
+                      className="my-auto pb-6 pt-10 text-left font-serif text-3xl"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormDescription>{`C'est le titre du livre.`}</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {/* Champ de recherche de couverture */}
+            <FormField
+              control={form.control}
+              name="imgUrl"
+              render={({ field }) => (
+                <FormItem>
+                  <div
+                    className={
+                      "relative after:absolute  after:right-0 after:top-1/2 after:-z-50 after:h-px after:w-full after:bg-mc-gray after:content-['']"
+                    }
+                  >
+                    <FormLabel htmlFor="imgUrl">Couverture</FormLabel>
+                  </div>
 
-                <FormDescription>
-                  Rentrez le titre du livre et puis cliquez ici sur rechercher
-                  la couverture automatiquement
-                </FormDescription>
-                <Button
-                  className={buttonVariants({
-                    size: "sm",
-                  })}
-                  onClick={handleSearch}
-                >
-                  Rechercher Couverture
-                </Button>
-                <FormMessage />
-                {/* <FormControl> </FormControl> */}
-                {/* {loading && <Progress value={70} />} */}
-                {/* {error && ( */}
-                <>
                   <FormDescription>
-                    {error && <p className="pb-4 text-mc-rose">{error}</p>}
+                    Rentrez le titre du livre et puis cliquez ici sur rechercher
+                    la couverture automatiquement
                   </FormDescription>
-                  <FormDescription>Ou rentrez un lien externe</FormDescription>
-                  <Input
-                    type="text"
-                    placeholder="URL de l'image"
-                    {...field}
-                    onChange={(e) => setImageUrl(e.target.value)}
-                  />
-                  {/* Bouton pour valider l'ajout par lien externe */}
                   <Button
                     className={buttonVariants({
                       size: "sm",
                     })}
-                    onClick={handleExternalImageSubmit}
+                    onClick={handleSearch}
                   >
-                    {"Valider le lien d'ajout"}
+                    Rechercher Couverture
                   </Button>
-                </>
-                {/* )} */}
-
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          {/* Champ des auteurs */}
-          <FormField
-            control={form.control}
-            name="authors"
-            render={() => (
-              <FormItem>
-                <div
-                  className={
-                    "relative after:absolute  after:right-0 after:top-1/2 after:-z-50 after:h-px after:w-full after:bg-mc-gray after:content-['']"
-                  }
-                >
-                  <FormLabel htmlFor="authors">Auteur(s)</FormLabel>
-                </div>
-                <FormControl>
-                  <AuthorsSelect
-                    value={selectedAuthors}
-                    onChange={(selectedAuthors) => {
-                      handleAuthorChange(selectedAuthors);
-                    }}
-                    addAuthors={addAuthors}
-                    authors={authors}
-                  />
-                </FormControl>
-                <FormDescription>
-                  Select the author(s) for the book.
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          {/* Champ de notation */}
-          <FormField
-            control={form.control}
-            name="rate"
-            render={() => (
-              <FormItem>
-                <div
-                  className={
-                    "relative after:absolute  after:right-0 after:top-1/2 after:-z-50 after:h-px after:w-full after:bg-mc-gray after:content-['']"
-                  }
-                >
-                  <FormLabel htmlFor="rate">Notation</FormLabel>
-                </div>
-                <FormControl>
-                  {/* <Input placeholder="0" type="number" {...field} /> */}
-
-                  <StarRatingInput value={rate} onChange={setRate} />
-                </FormControl>
-                <FormDescription>
-                  This is your rate for the book.
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          {/* Champ de description */}
-          <FormField
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <FormItem>
-                <div
-                  className={
-                    "relative after:absolute  after:right-0 after:top-1/2 after:-z-50 after:h-px after:w-full after:bg-mc-gray after:content-['']"
-                  }
-                >
-                  <FormLabel htmlFor="description">Avis</FormLabel>
-                </div>
-                <FormControl>
-                  <Input
-                    placeholder="Ecriz ici un petite description/sinopsis du livre"
-                    {...field}
-                  />
-                </FormControl>
-                <FormDescription>
-                  This is your avis for the book.
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <div
-            className={
-              "relative after:absolute  after:right-0 after:top-1/2 after:-z-50 after:h-px after:w-full after:bg-mc-gray after:content-['']"
-            }
-          >
-            <p className="bg-mc-white">CLASSIFICATION</p>
-          </div>
-          <div className="grid grid-cols-2 ">
-            {/* Champ de type */}
-            <FormField
-              control={form.control}
-              name="type"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel htmlFor="type">Type</FormLabel>
-
-                  <FormControl>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
+                  <FormMessage />
+                  {/* <FormControl> </FormControl> */}
+                  {/* {loading && <Progress value={70} />} */}
+                  {/* {error && ( */}
+                  <>
+                    <FormDescription>
+                      {error && <p className="pb-4 text-mc-rose">{error}</p>}
+                    </FormDescription>
+                    <FormDescription>
+                      Ou rentrez un lien externe
+                    </FormDescription>
+                    <Input
+                      type="text"
+                      placeholder="URL de l'image"
+                      {...field}
+                      onChange={(e) => setImageUrl(e.target.value)}
+                    />
+                    {/* Bouton pour valider l'ajout par lien externe */}
+                    <Button
+                      className={buttonVariants({
+                        size: "sm",
+                      })}
+                      onClick={handleExternalImageSubmit}
                     >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a Type" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <TypeSelect />
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormDescription>Type : BD, Livre, Manga</FormDescription>
+                      {"Valider le lien d'ajout"}
+                    </Button>
+                  </>
+                  {/* )} */}
+
                   <FormMessage />
                 </FormItem>
               )}
             />
-            {/* Champ de category */}
+            {/* Champ des auteurs */}
             <FormField
               control={form.control}
-              name="category"
-              render={({ field }) => (
+              name="authors"
+              render={() => (
                 <FormItem>
-                  <FormLabel htmlFor="category">Category</FormLabel>
+                  <div
+                    className={
+                      "relative after:absolute  after:right-0 after:top-1/2 after:-z-50 after:h-px after:w-full after:bg-mc-gray after:content-['']"
+                    }
+                  >
+                    <FormLabel htmlFor="authors">Auteur(s)</FormLabel>
+                  </div>
                   <FormControl>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a Category" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <CategorySelect />
-                      </SelectContent>
-                    </Select>
+                    <AuthorsSelect
+                      value={selectedAuthors}
+                      onChange={(selectedAuthors) => {
+                        handleAuthorChange(selectedAuthors);
+                      }}
+                      addAuthors={addAuthors}
+                      authors={authors}
+                    />
                   </FormControl>
                   <FormDescription>
-                    Category : SF, Roman, Fantaisie
+                    Select the author(s) for the book.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
-          </div>
-          <div
-            className={
-              "relative after:absolute  after:right-0 after:top-1/2 after:-z-50 after:h-px after:w-full after:bg-mc-gray after:content-['']"
-            }
-          >
-            <p className="bg-mc-white">EN BREF...</p>
-          </div>
-          <div className="grid grid-cols-2 ">
-            {/* Champ de status */}
+
+            {/* Champ de notation */}
             <FormField
               control={form.control}
-              name="status"
-              render={({ field }) => (
+              name="rate"
+              render={() => (
                 <FormItem>
-                  <FormLabel htmlFor="status">Status</FormLabel>
+                  <div
+                    className={
+                      "relative after:absolute  after:right-0 after:top-1/2 after:-z-50 after:h-px after:w-full after:bg-mc-gray after:content-['']"
+                    }
+                  >
+                    <FormLabel htmlFor="rate">Notation</FormLabel>
+                  </div>
                   <FormControl>
-                    <RadioGroup
-                      onValueChange={(value) =>
-                        field.onChange(value === "true")
-                      }
-                      value={field.value ? "true" : "false"}
-                    >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="true" id="present" />
-                        <Label htmlFor="present">Présent</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="false" id="emprunte" />
-                        <Label htmlFor="emprunte">Emprunté</Label>
-                      </div>
-                    </RadioGroup>
+                    {/* <Input placeholder="0" type="number" {...field} /> */}
+
+                    <StarRatingInput value={rate} onChange={setRate} />
                   </FormControl>
-                  <FormDescription></FormDescription>
+                  <FormDescription>
+                    This is your rate for the book.
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
-
-            {/* Champ de coup de coeur */}
+            {/* Champ de description */}
             <FormField
               control={form.control}
-              name="favorite"
+              name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel
-                    htmlFor="favorite"
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  <div
+                    className={
+                      "relative after:absolute  after:right-0 after:top-1/2 after:-z-50 after:h-px after:w-full after:bg-mc-gray after:content-['']"
+                    }
                   >
-                    Coup de coeur
-                  </FormLabel>
+                    <FormLabel htmlFor="description">Avis</FormLabel>
+                  </div>
                   <FormControl>
-                    <Checkbox
-                      id="favorite"
-                      checked={field.value}
-                      onCheckedChange={(checked) => field.onChange(checked)}
+                    <Input
+                      placeholder="Ecriz ici un petite description/sinopsis du livre"
+                      {...field}
                     />
                   </FormControl>
-                  <FormDescription></FormDescription>
+                  <FormDescription>
+                    This is your avis for the book.
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
-          </div>
+            <div
+              className={
+                "relative after:absolute  after:right-0 after:top-1/2 after:-z-50 after:h-px after:w-full after:bg-mc-gray after:content-['']"
+              }
+            >
+              <p className="bg-mc-white">CLASSIFICATION</p>
+            </div>
+            <div className="grid grid-cols-2 ">
+              {/* Champ de type */}
+              <FormField
+                control={form.control}
+                name="type"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel htmlFor="type">Type</FormLabel>
 
-          <Button type="submit">Envoyer</Button>
-          {successMessage && (
-            <p className="py-4  text-xl font-bold text-mc-green">
-              {successMessage}
-            </p>
-          )}
-        </div>
-      </form>
-    </Form>
+                    <FormControl>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue
+                              placeholder={
+                                selectedBook
+                                  ? selectedBook.type
+                                  : "Select a type"
+                              }
+                            />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <TypeSelect />
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormDescription>Type : BD, Livre, Manga</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              {/* Champ de category */}
+              <FormField
+                control={form.control}
+                name="category"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel htmlFor="category">Category</FormLabel>
+                    <FormControl>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue
+                              placeholder={
+                                selectedBook
+                                  ? selectedBook.category
+                                  : "Select a category"
+                              }
+                            />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <CategorySelect />
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormDescription>
+                      Category : SF, Roman, Fantaisie
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <div
+              className={
+                "relative after:absolute  after:right-0 after:top-1/2 after:-z-50 after:h-px after:w-full after:bg-mc-gray after:content-['']"
+              }
+            >
+              <p className="bg-mc-white">EN BREF...</p>
+            </div>
+            <div className="grid grid-cols-2 ">
+              {/* Champ de status */}
+              <FormField
+                control={form.control}
+                name="status"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel htmlFor="status">Status</FormLabel>
+                    <FormControl>
+                      <RadioGroup
+                        onValueChange={(value) =>
+                          field.onChange(value === "true")
+                        }
+                        value={field.value ? "true" : "false"}
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="true" id="present" />
+                          <Label htmlFor="present">Présent</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="false" id="emprunte" />
+                          <Label htmlFor="emprunte">Emprunté</Label>
+                        </div>
+                      </RadioGroup>
+                    </FormControl>
+                    <FormDescription></FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Champ de coup de coeur */}
+              <FormField
+                control={form.control}
+                name="favorite"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel
+                      htmlFor="favorite"
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    >
+                      Coup de coeur
+                    </FormLabel>
+                    <FormControl>
+                      <Checkbox
+                        id="favorite"
+                        checked={field.value}
+                        onCheckedChange={(checked) => field.onChange(checked)}
+                      />
+                    </FormControl>
+                    <FormDescription></FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="flex justify-center gap-6 sm:justify-start">
+              {selectedBook ? (
+                <>
+                  <Button
+                    type="submit"
+                    className={buttonVariants({
+                      variant: "secondary",
+                    })}
+                  >
+                    Enregistrer modifications
+                  </Button>
+                  <Link href={`/book/${selectedBook.id}`}>
+                    <button
+                      className={buttonVariants({
+                        size: "lg",
+                        variant: "destructive",
+                      })}
+                    >
+                      Anuller
+                    </button>
+                  </Link>
+                </>
+              ) : (
+                <Button
+                  type="submit"
+                  className={buttonVariants({
+                    variant: "secondary",
+                  })}
+                >
+                  Envoyer
+                </Button>
+              )}
+            </div>
+          </div>
+        </form>
+      </Form>
+      {isSuccessModalOpen && (
+        <SuccessModal
+          onClose={() => setSuccessModalOpen(false)}
+          successMessage={successMessage}
+          isOpen={isSuccessModalOpen}
+          isEdition={isEdition}
+        />
+      )}
+    </>
   );
 }
 export default NewForm;

@@ -8,7 +8,11 @@ interface ModalContentProps {
 }
 
 export const ModalContent: React.FC<ModalContentProps> = ({ children }) => {
-  return <div className="modal-content">{children}</div>;
+  return (
+    <div className="modal-content flex flex-col justify-center align-middle">
+      {children}
+    </div>
+  );
 };
 
 // ModalFooter component
@@ -17,7 +21,9 @@ interface ModalFooterProps {
 }
 
 export const ModalFooter: React.FC<ModalFooterProps> = ({ children }) => {
-  return <div className="modal-footer">{children}</div>;
+  return (
+    <div className="modal-footer flex justify-center gap-4">{children}</div>
+  );
 };
 
 // Modal component
@@ -34,7 +40,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
 
   return (
     <div className="modal-overlay">
-      <div className="modal">
+      <div className="modal z-50">
         <button className="close-button" onClick={onClose}>
           &times;
         </button>

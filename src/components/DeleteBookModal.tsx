@@ -12,7 +12,6 @@ interface DeleteBookModalProps {
   bookId: number;
   onClose: () => void;
   isOpen: boolean;
-  // router: any;
 }
 
 const DeleteBookModal: React.FC<DeleteBookModalProps> = ({
@@ -50,15 +49,20 @@ const DeleteBookModal: React.FC<DeleteBookModalProps> = ({
     <Modal onClose={onClose} isOpen={isOpen}>
       <ModalContent>
         {isSuccessMessageVisible ? (
-          <p>Livre supprimé avec succès !</p>
+          <p className="mx-auto py-4 text-mc-green">
+            Livre supprimé avec succès !
+          </p>
         ) : (
           <>
-            <p>Voulez-vous vraiment supprimer ce livre ?</p>
+            <p className="mx-auto py-4 text-mc-rose">
+              Voulez-vous vraiment supprimer ce livre ?
+            </p>
             {isLoading && <Progress value={70} />}
           </>
         )}
       </ModalContent>
       <ModalFooter>
+        {!isSuccessMessageVisible && <Button onClick={onClose}>Annuler</Button>}
         {!isSuccessMessageVisible && (
           <Button
             className={buttonVariants({
@@ -69,7 +73,6 @@ const DeleteBookModal: React.FC<DeleteBookModalProps> = ({
             Supprimer
           </Button>
         )}
-        {!isSuccessMessageVisible && <Button onClick={onClose}>Annuler</Button>}
       </ModalFooter>
     </Modal>
   );

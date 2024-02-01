@@ -6,7 +6,6 @@ import { FilterType } from "@/app/page";
 import { Progress } from "@/components/ui/progress";
 
 import { cn } from "@/lib/utils";
-import { set } from "react-hook-form";
 
 interface Books {
   id: number;
@@ -132,7 +131,7 @@ function BookShelves({ filters }: BookShelvesProps) {
     <div
       key={index}
       className={cn(
-        "border-x-8 border-t-8 border-mc-beige",
+        "border-x-6 border-t-6 border-mc-beige sm:border-x-8 sm:border-t-8",
         index % 2 === 0
           ? "flex justify-center gap-4"
           : "flex justify-center gap-4",
@@ -147,13 +146,18 @@ function BookShelves({ filters }: BookShelvesProps) {
   return (
     <>
       {isLoading ? (
-        <Progress value={progress} />
+        <div className="my-80 max-w-2xl">
+          <p>Loading {progress}%...</p>
+          <Progress value={progress} />
+        </div>
       ) : (
         <>
           <div className="fle-col bg--cover flex max-w-2xl flex-wrap">
             {booksCardList}
           </div>
-          <div className="mx-auto mb-56 h-6 max-w-2xl bg-mc-beige"></div>
+          {booksList.length > 0 && (
+            <div className="mx-auto mb-56 h-6 max-w-2xl bg-mc-beige"></div>
+          )}
         </>
       )}
     </>

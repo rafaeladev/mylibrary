@@ -1,6 +1,8 @@
 import { Dispatch, FC, SetStateAction, useEffect, useState } from "react";
 import axios from "axios";
 import { FilterType } from "@/app/page";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface FilterProps {
   filters: FilterType[] | null;
@@ -150,8 +152,21 @@ const Filter: FC<FilterProps> = ({ filters, setFilters }) => {
           />
           <p className="my-auto">Disponible</p>
         </label>
+        <Button
+          onClick={clearFilters}
+          className={cn(
+            buttonVariants({
+              variant: "destructive",
+            }),
+            "my-auto",
+          )}
+          // style={{
+          //   display: filters && filters.length > 0 ? "block py-0" : "none",
+          // }}
+        >
+          Effacer filtres
+        </Button>
       </div>
-      <button onClick={clearFilters}>Clear filter</button>
     </div>
   );
 };

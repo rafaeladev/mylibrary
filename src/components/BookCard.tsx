@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
+import Link from "next/link";
 
 import {
   Card,
@@ -26,6 +27,18 @@ interface NextConfig {
 }
 
 interface CardCompProps {
+  handleEditBook: (book: {
+    id: number;
+    title: string;
+    description: string;
+    img: string;
+    favorite: boolean;
+    authors: string[];
+    type: string;
+    category: string;
+    status: boolean;
+    rate: number;
+  }) => void;
   id: number;
   title: string;
   description: string;
@@ -39,6 +52,7 @@ interface CardCompProps {
 }
 
 function BookCard({
+  handleEditBook,
   id,
   title,
   description,
@@ -55,7 +69,6 @@ function BookCard({
   if (authors.length > 1) {
     authorsName = authors.map((name, index) => <li key={index}>{name}</li>);
   }
-  // const router = useRouter();
   // suprimer des livres
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
   const handleDeleteClick = () => {
@@ -83,8 +96,12 @@ function BookCard({
 
   return (
     <Card className="w-full" key={id}>
-      <CardContent className="grid grid-cols-3  gap-x-8 px-16 align-middle">
-        <figure className={"ml-auto flex items-center"}>
+      <CardContent className="mb-36 grid grid-cols-1  sm:grid-cols-3 sm:gap-x-8 sm:px-16">
+        <figure
+          className={
+            "max-auto mb-8 flex items-center justify-center sm:mb-auto "
+          }
+        >
           {/* <Image src={img} alt={"Cover Page"} width={180} height={250} /> */}
           <img src={img} alt={"Cover Page"} width={180} height={250} />
         </figure>
@@ -93,7 +110,7 @@ function BookCard({
             <h3 className="uppercase text-mc-beige">TITRE</h3>
             <CardTitle className="pl-2">{title}</CardTitle>
           </div>
-          <div className={"grid grid-cols-2 grid-rows-3 gap-y-4"}>
+          <div className={"grid grid-cols-2 grid-rows-3 gap-y-6 py-6"}>
             <div>
               <h3 className="uppercase text-mc-beige">auteur(s)</h3>
               <p className="pl-2">{authors}</p>
@@ -129,18 +146,20 @@ function BookCard({
             </div>
           </div>
 
-          <div className="pt-4">
+          <div>
             <h3 className="uppercase text-mc-beige">Description</h3>
             <p>{description}</p>
           </div>
 
           <div className="flex justify-start gap-10 pt-4">
             {/* Bouton Modifier */}
-            <button
-              className={buttonVariants({ size: "lg", className: "mt-5" })}
-            >
-              Modifier
-            </button>
+            <Link href={`/modifier/${id}`}>
+              <button
+                className={buttonVariants({ size: "lg", className: "mt-5" })}
+              >
+                Modifier
+              </button>
+            </Link>
 
             {/* Bouton Supprimer */}
             <button
@@ -159,7 +178,6 @@ function BookCard({
                 bookId={id}
                 onClose={() => setDeleteModalOpen(false)}
                 isOpen={isDeleteModalOpen}
-                // router={router}
               />
             )}
           </div>

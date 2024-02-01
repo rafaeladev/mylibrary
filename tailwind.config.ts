@@ -38,8 +38,12 @@ module.exports = {
       },
     },
     maxWidth: {
-      "2xl": "1200px",
+      "2xl": "1500px",
     },
+    maxHieght: {
+      "2xl": "50vh",
+    },
+
     fontFamily: {
       sans: ["DreamingOutLoud", "sans-serif"],
       serif: ["BetterTogether", "serif"],

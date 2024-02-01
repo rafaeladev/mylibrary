@@ -118,6 +118,15 @@
   margin-inline: auto;
 }
 
+@media only screen and (max-width: 600px) {
+  .bg--cover > :nth-child(odd) {
+    padding: 4px;
+  }
+  .bg--cover > :nth-child(even) {
+    padding: 4px;
+  }
+}
+
 .bg--cover > :nth-child(even) {
   background: #e8d5cd;
   padding: 20px;

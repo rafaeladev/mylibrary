@@ -1,8 +1,15 @@
-import React, { useState, useEffect } from "react";
+"use client";
+import NewForm from "@/components/form/NewForm";
+import { useState, useEffect } from "react";
 import axios from "axios";
-import BookCard from "../components/BookCard";
+import Link from "next/link";
+import PageTitle from "@/components/PageTitle";
 
-import NewForm from "./form/NewForm";
+import { Button, buttonVariants } from "@/components/ui/button";
+
+interface pageProps {
+  params: { id: number };
+}
 
 interface Books {
   id: number;
@@ -17,16 +24,12 @@ interface Books {
   rate: number;
 }
 
-interface BookDetailsProps {
-  bookId: number;
-}
+const Page: React.FC<pageProps> = ({ params }) => {
+  // Your component logic here
+  const bookId = params.id;
 
-export default function BookDetails({ bookId }: BookDetailsProps) {
-  const [bookDetails, setBookDetails] = useState<Books | null>(null);
-
-  // Modifying the book
-  const [editedBook, setEditedBook] = useState<Books | null>(null);
-  const isLoggedIn = true;
+  // Gestion edition
+  const [selectedBook, setSelectedBook] = useState<Books | null>(null);
 
   async function getAuthorsForBook(bookId: number): Promise<string[]> {
     try {
@@ -44,7 +47,6 @@ export default function BookDetails({ bookId }: BookDetailsProps) {
 
   // Fonction pour chercher les données dans la BD prisma et afficher
   useEffect(() => {
-    // console.log("useEffect appellé");
     const fetchData = async () => {
       try {
         let apiUrl = `/api/getUniqueBook?bookId=${bookId}`;
@@ -80,7 +82,7 @@ export default function BookDetails({ bookId }: BookDetailsProps) {
           rate: booksResponse.rate,
         };
 
-        setBookDetails(showedBook);
+        setSelectedBook(showedBook);
       } catch (error) {
         console.error("Erreur lors de la récupération des données", error);
       }
@@ -89,45 +91,12 @@ export default function BookDetails({ bookId }: BookDetailsProps) {
     fetchData();
   }, []);
 
-  // Gestion edition
-  const [selectedBook, setSelectedBook] = useState<Books | null>(null);
-
-  const handleEditBook = (book: Books) => {
-    setSelectedBook(book);
-  };
-
-  if (!bookDetails) {
-    return <div>Loading...</div>;
-  }
   return (
-    <>
-      <BookCard
-        handleEditBook={(book) =>
-          handleEditBook({
-            id: book.id,
-            title: book.title,
-            description: book.description,
-            imgUrl: book.img, // Ajoutez cette ligne pour inclure la propriété manquante
-            favorite: book.favorite,
-            type: book.type,
-            category: book.category,
-            authors: book.authors,
-            status: book.status,
-            rate: book.rate,
-          })
-        }
-        key={bookDetails.id}
-        id={bookDetails.id}
-        title={bookDetails.title}
-        description={bookDetails.description}
-        img={bookDetails.imgUrl}
-        favorite={bookDetails.favorite}
-        type={bookDetails.type}
-        category={bookDetails.category}
-        authors={bookDetails.authors}
-        status={bookDetails.status}
-        rate={bookDetails.rate}
-      />
-    </>
+    <div className=" mx-auto flex flex-col justify-center text-center">
+      <PageTitle title="Modifier" color="rose" />
+      <NewForm selectedBook={selectedBook} />
+    </div>
   );
-}
+};
+
+export default Page;

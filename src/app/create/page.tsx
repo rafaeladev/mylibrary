@@ -8,7 +8,7 @@ import NewForm from "@/components/form/NewForm";
 
 const page = () => {
   return (
-    <div className=" mx-auto flex flex-col justify-center text-center">
+    <div className="sm:px-0text-center mx-auto flex flex-col justify-center px-6">
       <PageTitle title="Ajouter" color="green" />
       <NewForm />
     </div>
