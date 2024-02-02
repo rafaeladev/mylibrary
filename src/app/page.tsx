@@ -3,7 +3,7 @@ import MaxWidthWrapper from "@/components/MaxWidthWrapper";
 import BookShelves from "@/components/bookShelves/BookShelves";
 import Filter from "@/components/filter/Filter";
 import Image from "next/image";
-import Banner from "/public/images/title.svg";
+import Banner from "/public/images/Title.svg";
 
 import { useState } from "react";
 
