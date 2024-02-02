@@ -153,7 +153,11 @@ function BookShelves({ filters }: BookShelvesProps) {
       ) : (
         <>
           <div className="fle-col bg--cover flex max-w-2xl flex-wrap">
-            {booksCardList}
+            {booksList.length > 0 ? (
+              booksCardList
+            ) : (
+              <p>Pas de livres trouvés avec la recherche</p>
+            )}
           </div>
           {booksList.length > 0 && (
             <div className="mx-auto mb-56 h-6 max-w-2xl bg-mc-beige"></div>

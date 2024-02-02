@@ -26,7 +26,7 @@ module.exports = {
       xl: "1.25rem",
       "2xl": "2.4rem",
       "3xl": "4.8rem",
-      // '3xl': '1.953rem',
+      "2.5xl": "3.5rem",
       // '4xl': '2.441rem',
       "5xl": "6.4rem",
     },

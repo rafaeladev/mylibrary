@@ -208,6 +208,7 @@ function NewForm({ selectedBook }: NewFormProps) {
   const [imageUrl, setImageUrl] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const defaultCoverUrl = "/default-placeholder.png";
+  const catImage = "/images/cat2.svg";
   // Fonction pour chercher couverture
   const handleSearch = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
@@ -443,7 +444,7 @@ function NewForm({ selectedBook }: NewFormProps) {
               control={form.control}
               name="coverShow"
               render={() => (
-                <FormItem>
+                <FormItem className="relative">
                   <div
                     className={
                       "relative after:absolute  after:right-0 after:top-1/2 after:-z-50 after:h-px after:w-full after:bg-mc-gray after:content-['']"
@@ -451,42 +452,58 @@ function NewForm({ selectedBook }: NewFormProps) {
                   >
                     <FormLabel htmlFor="coverShow">Couverture</FormLabel>
                   </div>
-                  <FormControl></FormControl>
-                  <FormDescription></FormDescription>
-                  {loading && <Progress value={70} />}
-                  {/* Couverture par défaut */}
-                  {!loading && !coverUrl && (
-                    <img
-                      src={defaultCoverUrl}
-                      alt="Couverture du livre par défaut"
-                      className="book-cover"
-                      width={"200"}
-                      height={"289"}
-                    />
-                  )}
+                  <div className="border-8 border-solid border-mc-beigeClair">
+                    {loading && <Progress value={70} />}
+                    <figure className="w-36 border-2 border-solid border-mc-gray sm:w-48">
+                      {/* Couverture par défaut */}
+                      {!loading && !coverUrl && (
+                        <img
+                          src={defaultCoverUrl}
+                          alt="Couverture du livre par défaut"
+                          className="book-cover"
+                          width={"200"}
+                          height={"289"}
+                        />
+                      )}
 
-                  {!loading && !coverUrl && imageUrl && (
-                    <img
-                      src={imageUrl}
-                      alt="Couverture du livre"
-                      className="book-cover"
-                      width={"200"}
-                      height={"289"}
-                    />
-                  )}
+                      {!loading && !coverUrl && imageUrl && (
+                        <img
+                          src={imageUrl}
+                          alt="Couverture du livre"
+                          className="book-cover"
+                          width={"200"}
+                          height={"289"}
+                        />
+                      )}
 
-                  {/* On affiche la couverture de l'API */}
-                  {loading && <p>Chargement en cours...</p>}
-                  {coverUrl && !loading && (
-                    <img
-                      src={coverUrl}
-                      alt="Couverture du livre"
-                      className="book-cover"
-                      width={"200"}
-                      height={"289"}
-                    />
-                  )}
-
+                      {/* On affiche la couverture de l'API */}
+                      {loading && <p>Chargement en cours...</p>}
+                      {coverUrl && !loading && (
+                        <img
+                          src={coverUrl}
+                          alt="Couverture du livre"
+                          className="book-cover"
+                          width={"200"}
+                          height={"289"}
+                        />
+                      )}
+                    </figure>
+                    <figure className="absolute -left-16 -top-0 w-16 sm:-left-28 sm:-top-20 sm:w-28">
+                      <Image
+                        src={catImage}
+                        style={
+                          {
+                            // position: "absolute",
+                            // top: "-20%",
+                            // left: "-113px",
+                          }
+                        }
+                        width={114}
+                        height={213}
+                        alt="Chat"
+                      />
+                    </figure>
+                  </div>
                   <FormMessage />
                 </FormItem>
               )}
@@ -509,7 +526,7 @@ function NewForm({ selectedBook }: NewFormProps) {
                   <FormControl>
                     <Input
                       placeholder="Titre du livre"
-                      className="my-auto pb-6 pt-10 text-left font-serif text-3xl"
+                      className="text-2.5xl my-auto pb-6 pt-10 text-left font-serif sm:text-3xl"
                       {...field}
                     />
                   </FormControl>
@@ -653,20 +670,21 @@ function NewForm({ selectedBook }: NewFormProps) {
                     />
                   </FormControl>
                   <FormDescription>
-                    This is your avis for the book.
+                    <div className="pb-10">This is your avis for the book.</div>
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
             <div
               className={
                 "relative after:absolute  after:right-0 after:top-1/2 after:-z-50 after:h-px after:w-full after:bg-mc-gray after:content-['']"
               }
             >
-              <p className="bg-mc-white">CLASSIFICATION</p>
+              <p className="w-fit bg-mc-white pr-2 ">CLASSIFICATION</p>
             </div>
-            <div className="grid grid-cols-2 ">
+            <div className="grid-col-1 grid sm:grid-cols-2 ">
               {/* Champ de type */}
               <FormField
                 control={form.control}
@@ -730,7 +748,9 @@ function NewForm({ selectedBook }: NewFormProps) {
                       </Select>
                     </FormControl>
                     <FormDescription>
-                      Category : SF, Roman, Fantaisie
+                      <div className="pb-10">
+                        Category : SF, Roman, Fantaisie
+                      </div>
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -742,9 +762,9 @@ function NewForm({ selectedBook }: NewFormProps) {
                 "relative after:absolute  after:right-0 after:top-1/2 after:-z-50 after:h-px after:w-full after:bg-mc-gray after:content-['']"
               }
             >
-              <p className="bg-mc-white">EN BREF...</p>
+              <p className="w-fit bg-mc-white bg-mc-white pr-2 ">EN BREF</p>
             </div>
-            <div className="grid grid-cols-2 ">
+            <div className="grid grid-cols-1 sm:grid-cols-2 ">
               {/* Champ de status */}
               <FormField
                 control={form.control}
@@ -780,10 +800,10 @@ function NewForm({ selectedBook }: NewFormProps) {
                 control={form.control}
                 name="favorite"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="flex  align-middle">
                     <FormLabel
                       htmlFor="favorite"
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      className="flex flex-col justify-center text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                     >
                       Coup de coeur
                     </FormLabel>
@@ -801,16 +821,17 @@ function NewForm({ selectedBook }: NewFormProps) {
               />
             </div>
 
-            <div className="flex justify-center gap-6 sm:justify-start">
+            <div className="flex justify-center gap-6 pt-10 sm:justify-start">
               {selectedBook ? (
                 <>
                   <Button
                     type="submit"
                     className={buttonVariants({
                       variant: "secondary",
+                      size: "lg",
                     })}
                   >
-                    Enregistrer modifications
+                    Sauvegarder
                   </Button>
                   <Link href={`/book/${selectedBook.id}`}>
                     <button

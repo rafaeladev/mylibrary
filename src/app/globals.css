@@ -143,6 +143,7 @@ body {
   margin: 0;
   width: 100%;
   min-height: 100vh; /* Ajoutez cette ligne pour assurer une hauteur minimale de la fenêtre */
+  color: #533745;
 }
 
 .grid-rows-layout {

@@ -88,11 +88,13 @@ const Filter: FC<FilterProps> = ({ filters, setFilters }) => {
 
   return (
     <div className="mb-10">
-      <div className="flex w-full flex-wrap justify-center gap-4 align-middle">
-        <p className="font-serif text-2xl text-mc-marrom">Filtres :</p>
+      <div className="flex w-full flex-col flex-wrap justify-center gap-2 align-middle sm:flex-row sm:gap-4">
+        <p className="text-2.5xl text-center font-serif text-mc-marrom sm:text-left sm:text-2xl">
+          Filtres :
+        </p>
         {/* <label> */}
         <select
-          className="bg-mc-beige px-5 text-mc-white"
+          className="bg-mc-beige px-5 py-2 text-mc-white"
           onChange={(e) => handleSelectFilter("author", Number(e.target.value))}
         >
           <option value="">Auteurs</option>
@@ -103,7 +105,7 @@ const Filter: FC<FilterProps> = ({ filters, setFilters }) => {
           ))}
         </select>
         <select
-          className="bg-mc-beige px-5 text-mc-white"
+          className="bg-mc-beige px-5 py-2 text-mc-white"
           onChange={(e) => handleSelectFilter("type", Number(e.target.value))}
         >
           <option value="">Types</option>
@@ -114,7 +116,7 @@ const Filter: FC<FilterProps> = ({ filters, setFilters }) => {
           ))}
         </select>
         <select
-          className="bg-mc-beige px-5 text-mc-white"
+          className="bg-mc-beige px-5 py-2 text-mc-white"
           onChange={(e) =>
             handleSelectFilter("category", Number(e.target.value))
           }
@@ -158,11 +160,8 @@ const Filter: FC<FilterProps> = ({ filters, setFilters }) => {
             buttonVariants({
               variant: "destructive",
             }),
-            "my-auto",
+            "mx-auto my-auto w-1/2 sm:mx-0 sm:w-fit",
           )}
-          // style={{
-          //   display: filters && filters.length > 0 ? "block py-0" : "none",
-          // }}
         >
           Effacer filtres
         </Button>

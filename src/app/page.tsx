@@ -2,7 +2,8 @@
 import MaxWidthWrapper from "@/components/MaxWidthWrapper";
 import BookShelves from "@/components/bookShelves/BookShelves";
 import Filter from "@/components/filter/Filter";
-import { Progress } from "@/components/ui/progress";
+import Image from "next/image";
+import Banner from "/public/images/title.svg";
 
 import { useState } from "react";
 
@@ -16,12 +17,13 @@ const Page = () => {
 
   return (
     <>
-      <>
-        <div className="flex flex-col gap-2 md:flex-row md:justify-center">
-          <Filter filters={filters} setFilters={setFilters} />
-        </div>
-        <BookShelves filters={filters} />
-      </>
+      <figure className="mx-auto mb-4 w-fit sm:mb-24">
+        <Image src={Banner} alt="BacktoImage" />
+      </figure>
+      <div className="flex flex-col gap-2 md:flex-row md:justify-center">
+        <Filter filters={filters} setFilters={setFilters} />
+      </div>
+      <BookShelves filters={filters} />
     </>
   );
 };
