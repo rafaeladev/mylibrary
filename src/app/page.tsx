@@ -3,7 +3,7 @@ import MaxWidthWrapper from "@/components/MaxWidthWrapper";
 import BookShelves from "@/components/bookShelves/BookShelves";
 import Filter from "@/components/filter/Filter";
 import Image from "next/image";
-import Banner from "/public/images/Title.svg";
+import Banners from "/public/images/Title.svg";
 
 import { useState } from "react";
 
@@ -18,7 +18,7 @@ const Page = () => {
   return (
     <>
       <figure className="mx-auto mb-4 w-fit sm:mb-24">
-        <Image src={Banner} alt="BacktoImage" />
+        <Image src={Banners} alt="BacktoImage" />
       </figure>
       <div className="flex flex-col gap-2 md:flex-row md:justify-center">
         <Filter filters={filters} setFilters={setFilters} />
