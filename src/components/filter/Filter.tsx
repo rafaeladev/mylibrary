@@ -89,7 +89,7 @@ const Filter: FC<FilterProps> = ({ filters, setFilters }) => {
   return (
     <div className="mb-10">
       <div className="flex w-full flex-col flex-wrap justify-center gap-2 align-middle sm:flex-row sm:gap-4">
-        <p className="text-2.5xl text-center font-serif text-mc-marrom sm:text-left sm:text-2xl">
+        <p className="text-center font-serif text-2.5xl text-mc-marrom sm:text-left sm:text-2xl">
           Filtres :
         </p>
         {/* <label> */}
@@ -140,7 +140,7 @@ const Filter: FC<FilterProps> = ({ filters, setFilters }) => {
             }}
             className="my-auto h-4 w-4"
           />
-          <p className="my-auto">Favorite</p>
+          <p className="my-auto">Favorits Uniquement</p>
         </label>
         <label className="flex justify-center gap-2 align-middle">
           <input
@@ -154,17 +154,19 @@ const Filter: FC<FilterProps> = ({ filters, setFilters }) => {
           />
           <p className="my-auto">Disponible</p>
         </label>
-        <Button
-          onClick={clearFilters}
-          className={cn(
-            buttonVariants({
-              variant: "destructive",
-            }),
-            "mx-auto my-auto w-1/2 sm:mx-0 sm:w-fit",
-          )}
-        >
-          Effacer filtres
-        </Button>
+        {filters && (
+          <Button
+            onClick={clearFilters}
+            className={cn(
+              buttonVariants({
+                variant: "destructive",
+              }),
+              "mx-auto my-auto w-1/2 sm:mx-0 sm:w-fit",
+            )}
+          >
+            Effacer filtres
+          </Button>
+        )}
       </div>
     </div>
   );

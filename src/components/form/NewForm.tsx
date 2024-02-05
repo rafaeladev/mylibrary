@@ -186,7 +186,6 @@ function NewForm({ selectedBook }: NewFormProps) {
           // Effacer le message de réussite après la réinitialisation
           setSuccessMessage("");
         }, 1000);
-        // console.log("Réponse de l'API :", responseData);
         return "Le livre a été enregistré avec succès.";
       } else {
         console.error(
@@ -521,12 +520,12 @@ function NewForm({ selectedBook }: NewFormProps) {
                       "relative after:absolute  after:right-0 after:top-1/2 after:-z-50 after:h-px after:w-full after:bg-mc-gray after:content-['']"
                     }
                   >
-                    <FormLabel htmlFor="title">Title</FormLabel>
+                    <FormLabel htmlFor="title">Titre</FormLabel>
                   </div>
                   <FormControl>
                     <Input
                       placeholder="Titre du livre"
-                      className="text-2.5xl my-auto pb-6 pt-10 text-left font-serif sm:text-3xl"
+                      className="my-auto pb-6 pt-10 text-left font-serif text-2.5xl sm:text-3xl"
                       {...field}
                     />
                   </FormControl>
@@ -676,7 +675,7 @@ function NewForm({ selectedBook }: NewFormProps) {
                 </FormItem>
               )}
             />
-
+            {/*Classifiaation */}
             <div
               className={
                 "relative after:absolute  after:right-0 after:top-1/2 after:-z-50 after:h-px after:w-full after:bg-mc-gray after:content-['']"
@@ -762,7 +761,7 @@ function NewForm({ selectedBook }: NewFormProps) {
                 "relative after:absolute  after:right-0 after:top-1/2 after:-z-50 after:h-px after:w-full after:bg-mc-gray after:content-['']"
               }
             >
-              <p className="w-fit bg-mc-white bg-mc-white pr-2 ">EN BREF</p>
+              <p className="w-fit bg-mc-white pr-2 ">EN BREF</p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 ">
               {/* Champ de status */}
@@ -851,7 +850,7 @@ function NewForm({ selectedBook }: NewFormProps) {
                     variant: "secondary",
                   })}
                 >
-                  Envoyer
+                  Ajouter le livre
                 </Button>
               )}
             </div>

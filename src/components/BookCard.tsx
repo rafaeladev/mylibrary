@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import Backto from "/public/images/Backto.svg";
 
 import {
   Card,
@@ -77,9 +78,9 @@ function BookCard({
   };
 
   // Icons images
-  const starImg = `/images/star.png`;
-  const fullStarImg = `/images/star-full.png`;
-  const heartImg = `/images/heart-full.png`;
+  const starImg = `/images/star.svg`;
+  const fullStarImg = `/images/star-full.svg`;
+  const heartImg = `/images/heart-full.svg`;
 
   const starFull = (
     <Image src={fullStarImg} alt="Icone star rempli" width={25} height={25} />
@@ -88,21 +89,24 @@ function BookCard({
     <Image src={starImg} alt="Star vide icon" width={25} height={25} />
   );
 
-  let divRate = [starEmpty, starEmpty, starEmpty, starEmpty, starEmpty];
+  let divRate = [];
+
+  for (let i = 0; i < 5; i++) {
+    divRate[i] = <li key={`${i}-${id}-EmptyStar`}>{starEmpty}</li>;
+  }
 
   for (let i = 0; i < rate; i++) {
-    divRate[i] = starFull;
+    divRate[i] = <li key={`${i}-${id}-StarFull`}>{starFull}</li>;
   }
 
   return (
     <Card className="w-full" key={id}>
-      <CardContent className="mb-36 grid grid-cols-1  sm:grid-cols-3 sm:gap-x-8 sm:px-16">
+      <CardContent className="mb-24 grid grid-cols-1  sm:mb-36 sm:grid-cols-3 sm:gap-x-8 sm:px-16">
         <figure
           className={
             "max-auto mb-8 flex items-center justify-center sm:mb-auto "
           }
         >
-          {/* <Image src={img} alt={"Cover Page"} width={180} height={250} /> */}
           <img src={img} alt={"Cover Page"} width={180} height={250} />
         </figure>
         <div className="col-span-2 text-left text-mc-violet">
@@ -116,25 +120,35 @@ function BookCard({
               <p className="pl-2">{authors}</p>
             </div>
             <div>
-              <h3 className="uppercase text-mc-beige">Status</h3>
+              <h3 className="uppercase text-mc-beige">Statut</h3>
               <span
                 className={`pl-2 ${status ? "text-mc-green" : "text-mc-rose"}`}
               >
-                {status ? "Présent dans la bilbiothèque" : "Emprunté"}
+                {status ? "Dans la bilbiothèque" : "Prété"}
               </span>
             </div>
             <div>
-              <h3 className="uppercase text-mc-beige">Note</h3>
+              <h3 className="uppercase text-mc-beige">Notation</h3>
 
-              <div className="flex gap-1"> {divRate}</div>
+              <ul className="flex gap-1">{divRate}</ul>
             </div>
-            <div className={`mt-auto flex gap-2 text-mc-violet`}>
-              {favorite ? (
-                <Image src={heartImg} alt="Mon Image" width={25} height={25} />
-              ) : (
-                ""
+            <div className={`mb-auto text-mc-violet`}>
+              {favorite && (
+                <span className="uppercase text-mc-beige">COUP DE CEUR</span>
               )}
-              <span className="uppercase text-mc-beige">COUP DE CEUR</span>
+              {favorite ? (
+                <Image
+                  src={heartImg}
+                  alt="Mon Image"
+                  width="0"
+                  height="0"
+                  style={{
+                    width: "30px",
+                    height: "auto",
+                    paddingLeft: "0.5rem",
+                  }}
+                />
+              ) : null}
             </div>
             <div>
               <h3 className="uppercase text-mc-beige">Type</h3>
@@ -151,11 +165,15 @@ function BookCard({
             <p>{description}</p>
           </div>
 
-          <div className="flex justify-start gap-10 pt-4">
+          <div className="z-10 mx-auto mt-4 flex w-1/2 flex-col justify-center gap-2 pt-0 align-middle sm:mx-0 sm:w-fit sm:flex-row sm:justify-start sm:gap-10 sm:pt-4">
             {/* Bouton Modifier */}
-            <Link href={`/modifier/${id}`}>
+            <Link href={`/modifier/${id}`} className="w-full">
               <button
-                className={buttonVariants({ size: "lg", className: "mt-5" })}
+                className={buttonVariants({
+                  variant: "default",
+                  size: "lg",
+                  className: "mt-2 sm:mt-5",
+                })}
               >
                 Modifier
               </button>
@@ -166,7 +184,7 @@ function BookCard({
               className={buttonVariants({
                 variant: "destructive",
                 size: "lg",
-                className: "mt-5",
+                className: "mt-2 sm:mt-5",
               })}
               onClick={handleDeleteClick}
             >
@@ -182,6 +200,26 @@ function BookCard({
             )}
           </div>
         </div>
+        <Link
+          href="/"
+          className="mt-16 opacity-90 transition-all hover:text-mc-marrom hover:opacity-100 sm:col-start-3"
+        >
+          <figure className="relative z-10 mb-0 w-fit sm:mb-48 sm:ml-auto">
+            <Image
+              src={Backto}
+              alt="BacktoImage"
+              style={{
+                width: "90%",
+                maxWidth: "479px",
+                height: "auto",
+                marginInline: "auto",
+              }}
+            />
+            <p className="absolute left-8 top-1/2 w-3/4 text-left sm:top-16 sm:w-1/2">
+              Retourner à <span className="text-mc-white">la bibliothèque</span>
+            </p>
+          </figure>
+        </Link>
       </CardContent>
     </Card>
   );

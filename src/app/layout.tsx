@@ -29,7 +29,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <div className="grid-rows-layout grid min-h-screen">
-          <header>
+          <header className=" w-full">
             <Navbar />
           </header>
 
@@ -39,8 +39,7 @@ export default function RootLayout({
             <Image
               src={kiki}
               alt="kikis"
-              // width={1500}
-
+              priority={true}
               style={{
                 width: "100%",
                 maxWidth: "1500px",

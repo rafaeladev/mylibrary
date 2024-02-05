@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import BookCard from "../components/BookCard";
-
 import NewForm from "./form/NewForm";
 
 interface Books {
@@ -107,7 +106,7 @@ export default function BookDetails({ bookId }: BookDetailsProps) {
             id: book.id,
             title: book.title,
             description: book.description,
-            imgUrl: book.img, // Ajoutez cette ligne pour inclure la propriété manquante
+            imgUrl: book.img,
             favorite: book.favorite,
             type: book.type,
             category: book.category,

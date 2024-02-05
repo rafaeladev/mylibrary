@@ -144,6 +144,7 @@ body {
   width: 100%;
   min-height: 100vh; /* Ajoutez cette ligne pour assurer une hauteur minimale de la fenêtre */
   color: #533745;
+  font-size: 20px;
 }
 
 .grid-rows-layout {
@@ -174,6 +175,7 @@ footer {
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 50;
 }
 
 .modal {
@@ -191,6 +193,8 @@ footer {
   cursor: pointer;
 }
 
-.modal-content {
-  /* Ajoutez vos styles spécifiques pour le contenu de la modale ici */
+@media screen and (max-width: 768px) {
+  body {
+    font-size: 16px;
+  }
 }
