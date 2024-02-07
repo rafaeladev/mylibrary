@@ -7,6 +7,8 @@ import axios from "axios";
 import Image from "next/image";
 import Link from "next/link";
 
+import { Search, RefreshCw, Check } from "lucide-react";
+
 //======== Shadcn ui components ==========//
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
@@ -181,8 +183,7 @@ function NewForm({ selectedBook }: NewFormProps) {
           setSelectedAuthors([]); // Réinitialiser la liste des auteurs sélectionnés
           setRate(0); // Réinitialiser la note
           setCoverUrl("");
-          setImageUrl("");
-
+          setCoverShow("");
           // Effacer le message de réussite après la réinitialisation
           setSuccessMessage("");
         }, 1000);
@@ -204,7 +205,8 @@ function NewForm({ selectedBook }: NewFormProps) {
   //3. Handle cover search
   const [loading, setLoading] = useState(false);
   const [coverUrl, setCoverUrl] = useState<string>("");
-  const [imageUrl, setImageUrl] = useState<string>("");
+  const [coverShow, setCoverShow] = useState<string>("");
+  // const [imageUrl, setImageUrl] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const defaultCoverUrl = "/default-placeholder.png";
   const catImage = "/images/cat2.svg";
@@ -222,10 +224,12 @@ function NewForm({ selectedBook }: NewFormProps) {
 
       if (response.data.length > 0) {
         setCoverUrl(response.data);
+        setCoverShow(response.data);
         setError(null);
         form.setValue("imgUrl", response.data);
       } else {
         setCoverUrl("");
+        setCoverShow("");
         setError(
           `Aucun résultat trouvé pour la recherche actuelle depuis l'API.`,
         );
@@ -237,6 +241,7 @@ function NewForm({ selectedBook }: NewFormProps) {
         error,
       );
       setCoverUrl("");
+      setCoverShow("");
       setError(
         `Aucun résultat trouvé pour la recherche actuelle depuis l'API.`,
       );
@@ -248,11 +253,12 @@ function NewForm({ selectedBook }: NewFormProps) {
   // Fonction pour valider l'ajout par lien externe
   const handleExternalImageSubmit = () => {
     // Vérifie si l'URL de l'image est une URL valide
-    const isValidUrl = /^https?:\/\/\S+\.\S+$/.test(imageUrl);
+    const isValidUrl = /^https?:\/\/\S+\.\S+$/.test(coverUrl);
 
     if (isValidUrl) {
       // Met à jour l'état coverUrl avec l'URL validée
-      setCoverUrl(imageUrl);
+      setCoverUrl(coverUrl);
+      setCoverShow(coverUrl);
       setError(null); // Efface les erreurs précédentes
     } else {
       // Affiche une erreur si l'URL n'est pas valide
@@ -449,7 +455,7 @@ function NewForm({ selectedBook }: NewFormProps) {
                       "relative after:absolute  after:right-0 after:top-1/2 after:-z-50 after:h-px after:w-full after:bg-mc-gray after:content-['']"
                     }
                   >
-                    <FormLabel htmlFor="coverShow">Couverture</FormLabel>
+                    <FormLabel htmlFor="coverShow">aperçu</FormLabel>
                   </div>
                   <div className="border-8 border-solid border-mc-beigeClair">
                     {loading && <Progress value={70} />}
@@ -465,7 +471,7 @@ function NewForm({ selectedBook }: NewFormProps) {
                         />
                       )}
 
-                      {!loading && !coverUrl && imageUrl && (
+                      {/* {!loading && !coverUrl && imageUrl && (
                         <img
                           src={imageUrl}
                           alt="Couverture du livre"
@@ -473,13 +479,13 @@ function NewForm({ selectedBook }: NewFormProps) {
                           width={"200"}
                           height={"289"}
                         />
-                      )}
+                      )} */}
 
                       {/* On affiche la couverture de l'API */}
                       {loading && <p>Chargement en cours...</p>}
-                      {coverUrl && !loading && (
+                      {coverShow && !loading && (
                         <img
-                          src={coverUrl}
+                          src={coverShow}
                           alt="Couverture du livre"
                           className="book-cover"
                           width={"200"}
@@ -509,7 +515,7 @@ function NewForm({ selectedBook }: NewFormProps) {
             />
           </div>
           <div className="col-span-2 mt-0">
-            {/* Champ de titre */}
+            {/* Champ de titre et couverture */}
             <FormField
               control={form.control}
               name="title"
@@ -520,8 +526,10 @@ function NewForm({ selectedBook }: NewFormProps) {
                       "relative after:absolute  after:right-0 after:top-1/2 after:-z-50 after:h-px after:w-full after:bg-mc-gray after:content-['']"
                     }
                   >
-                    <FormLabel htmlFor="title">Titre</FormLabel>
+                    <FormLabel htmlFor="title">Titre et couverture</FormLabel>
                   </div>
+                  {/* <FormDescription>{`Titre du livre :`}</FormDescription> */}
+
                   <FormControl>
                     <Input
                       placeholder="Titre du livre"
@@ -529,7 +537,7 @@ function NewForm({ selectedBook }: NewFormProps) {
                       {...field}
                     />
                   </FormControl>
-                  <FormDescription>{`C'est le titre du livre.`}</FormDescription>
+                  {/* <FormDescription>{`C'est le titre du livre.`}</FormDescription> */}
                   <FormMessage />
                 </FormItem>
               )}
@@ -540,55 +548,67 @@ function NewForm({ selectedBook }: NewFormProps) {
               name="imgUrl"
               render={({ field }) => (
                 <FormItem>
-                  <div
+                  {/* <div
                     className={
                       "relative after:absolute  after:right-0 after:top-1/2 after:-z-50 after:h-px after:w-full after:bg-mc-gray after:content-['']"
                     }
                   >
                     <FormLabel htmlFor="imgUrl">Couverture</FormLabel>
-                  </div>
+                  </div> */}
 
-                  <FormDescription>
-                    Rentrez le titre du livre et puis cliquez ici sur rechercher
-                    la couverture automatiquement
-                  </FormDescription>
-                  <Button
-                    className={buttonVariants({
-                      size: "sm",
-                    })}
-                    onClick={handleSearch}
-                  >
-                    Rechercher Couverture
-                  </Button>
+                  <div>
+                    {/* <FormDescription>
+                      Rentrez le titre du livre et puis cliquez ici sur
+                      rechercher la couverture automatiquement
+                    </FormDescription> */}
+                  </div>
                   <FormMessage />
                   {/* <FormControl> </FormControl> */}
                   {/* {loading && <Progress value={70} />} */}
                   {/* {error && ( */}
-                  <>
-                    <FormDescription>
-                      {error && <p className="pb-4 text-mc-rose">{error}</p>}
-                    </FormDescription>
-                    <FormDescription>
-                      Ou rentrez un lien externe
-                    </FormDescription>
+                  <p>Image de couverture</p>
+                  <div className="flex gap-3">
                     <Input
                       type="text"
                       placeholder="URL de l'image"
                       {...field}
-                      onChange={(e) => setImageUrl(e.target.value)}
+                      value={coverUrl}
+                      onChange={(e) => setCoverUrl(e.target.value)}
                     />
-                    {/* Bouton pour valider l'ajout par lien externe */}
                     <Button
                       className={buttonVariants({
                         size: "sm",
                       })}
+                      onClick={handleSearch}
+                    >
+                      <Search />
+                    </Button>
+                    {/* Bouton pour l'ajout par lien externe */}
+                    <Button
+                      className={buttonVariants({
+                        size: "sm",
+                        variant: "destructive",
+                      })}
                       onClick={handleExternalImageSubmit}
                     >
-                      {"Valider le lien d'ajout"}
+                      <RefreshCw />
                     </Button>
-                  </>
-                  {/* )} */}
-
+                    {/* Bouton pour valider l'ajout de l'image */}
+                    {/* <Button
+                      className={buttonVariants({
+                        size: "sm",
+                        variant: "secondary",
+                      })}
+                      onClick={handleExternalImageSubmit}
+                    >
+                      <Check />
+                    </Button> */}
+                  </div>
+                  <FormDescription>
+                    {error && <p className="pb-4 text-mc-rose">{error}</p>}
+                    {`Recherchez automatiquement ou rentrez manuaellement l'image
+                    de couverture`}
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -665,12 +685,17 @@ function NewForm({ selectedBook }: NewFormProps) {
                   <FormControl>
                     <Input
                       placeholder="Ecriz ici un petite description/sinopsis du livre"
+                      style={{
+                        height: "150px",
+                        textAlign: "left",
+                        marginBottom: "2rem",
+                      }}
                       {...field}
                     />
                   </FormControl>
-                  <FormDescription>
+                  {/* <FormDescription>
                     <div className="pb-10">This is your avis for the book.</div>
-                  </FormDescription>
+                  </FormDescription> */}
                   <FormMessage />
                 </FormItem>
               )}
@@ -681,7 +706,7 @@ function NewForm({ selectedBook }: NewFormProps) {
                 "relative after:absolute  after:right-0 after:top-1/2 after:-z-50 after:h-px after:w-full after:bg-mc-gray after:content-['']"
               }
             >
-              <p className="w-fit bg-mc-white pr-2 ">CLASSIFICATION</p>
+              <p className="w-fit bg-mc-white pr-2">CLASSIFICATION</p>
             </div>
             <div className="grid-col-1 grid sm:grid-cols-2 ">
               {/* Champ de type */}

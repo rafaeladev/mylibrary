@@ -16,13 +16,6 @@ interface AuthorsSelectProps {
 
 const AuthorsSelect: React.FC<AuthorsSelectProps> = React.memo(
   ({ onChange, value, addAuthors, authors }) => {
-    // const [isMounted, setIsMounted] = useState(false);
-
-    // useEffect(() => {
-    //     console.log('Authors updated in AuthorsSelect:', authors);
-    //     onChange(value);
-    // }, [authors, value]);
-
     const selectOptions =
       authors?.map((author) => ({
         value: author?.name ?? "",

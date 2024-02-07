@@ -42,8 +42,18 @@ const Filter: FC<FilterProps> = ({ filters, setFilters }) => {
             axios.get<Author[]>("/api/getAuthors"),
           ]);
 
-        setTypes(typesResponse.data);
-        setCategories(categoriesResponse.data);
+        // Tri des types par ordre alphabétique
+        const sortedTypes = typesResponse.data.sort((a, b) =>
+          a.name.localeCompare(b.name),
+        );
+        setTypes(sortedTypes);
+
+        // Tri des Categories par ordre alphabétique
+        const sortedCat = categoriesResponse.data.sort((a, b) =>
+          a.name.localeCompare(b.name),
+        );
+        setCategories(sortedCat);
+
         // Tri des auteurs par ordre alphabétique
         const sortedAuthors = authorsResponse.data.sort((a, b) =>
           a.name.localeCompare(b.name),
@@ -61,6 +71,21 @@ const Filter: FC<FilterProps> = ({ filters, setFilters }) => {
     setIsFavorite(false);
     setIsAvailable(false);
     setFilters(null);
+
+    // Réinitialiser les valeurs des champs de sélection
+    const authorSelect = document.getElementById(
+      "authorSelect",
+    ) as HTMLSelectElement;
+    const typeSelect = document.getElementById(
+      "typeSelect",
+    ) as HTMLSelectElement;
+    const categorySelect = document.getElementById(
+      "categorySelect",
+    ) as HTMLSelectElement;
+
+    authorSelect.selectedIndex = 0;
+    typeSelect.selectedIndex = 0;
+    categorySelect.selectedIndex = 0;
   };
 
   const handleSelectFilter = (
@@ -94,10 +119,13 @@ const Filter: FC<FilterProps> = ({ filters, setFilters }) => {
         </p>
         {/* <label> */}
         <select
+          id="authorSelect"
           className="bg-mc-beige px-5 py-2 text-mc-white"
           onChange={(e) => handleSelectFilter("author", Number(e.target.value))}
         >
-          <option value="">Auteurs</option>
+          <option value="" hidden>
+            Auteurs
+          </option>
           {authors.map((author) => (
             <option key={author.id} value={author.id}>
               {author.name}
@@ -105,10 +133,13 @@ const Filter: FC<FilterProps> = ({ filters, setFilters }) => {
           ))}
         </select>
         <select
+          id="typeSelect"
           className="bg-mc-beige px-5 py-2 text-mc-white"
           onChange={(e) => handleSelectFilter("type", Number(e.target.value))}
         >
-          <option value="">Types</option>
+          <option value="" hidden>
+            Types
+          </option>
           {types.map((type) => (
             <option key={type.id} value={type.id}>
               {type.name}
@@ -116,12 +147,15 @@ const Filter: FC<FilterProps> = ({ filters, setFilters }) => {
           ))}
         </select>
         <select
+          id="categorySelect"
           className="bg-mc-beige px-5 py-2 text-mc-white"
           onChange={(e) =>
             handleSelectFilter("category", Number(e.target.value))
           }
         >
-          <option value="">Categories</option>
+          <option value="" hidden>
+            Categories
+          </option>
           {categories.map((category) => (
             <option key={category.id} value={category.id}>
               {category.name}
