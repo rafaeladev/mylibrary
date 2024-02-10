@@ -20,18 +20,18 @@ export default async function handler(
       // Ajoutez l'auteur à la base de données
 
       if (!existingAuthor) {
-        console.log("L'auteur n'existe pas, ajout à la base de données...");
+        // console.log("L'auteur n'existe pas, ajout à la base de données...");
 
         const newAuthor = await prisma.author.create({
           data: { name },
         });
 
-        console.log("Auteur ajouté avec succès :", newAuthor);
+        // console.log("Auteur ajouté avec succès :", newAuthor);
 
         return res.status(201).json(newAuthor);
       } else {
         // L'auteur existe déjà, renvoyez une réponse appropriée
-        console.log("L'auteur existe déjà :", existingAuthor);
+        // console.log("L'auteur existe déjà :", existingAuthor);
 
         return res.status(200).json(existingAuthor);
       }

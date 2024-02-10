@@ -2,7 +2,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { set, useForm } from "react-hook-form";
 import * as z from "zod";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import axios from "axios";
 import Image from "next/image";
 import Link from "next/link";
@@ -37,7 +37,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 
 import { Progress } from "@/components/ui/progress";
 
+import { Textarea } from "@/components/ui/textarea";
+
 //======== Shadcn ui components ==========//
+
+import { useSession } from "next-auth/react";
 
 // Form components
 import TypeSelect from "./TypeSelect";
@@ -125,6 +129,9 @@ function NewForm({ selectedBook }: NewFormProps) {
   //=============================================================
   // 2. Define a submit handler.
 
+  const { data: session } = useSession();
+  const id = session?.user?.id;
+
   // Loading
   const [isLoading, setIsLoading] = useState(false);
   // Message submit :
@@ -144,6 +151,7 @@ function NewForm({ selectedBook }: NewFormProps) {
       setIsEdition(false);
       setIsLoading(true);
       form.setValue("rate", rate);
+
       const response = await fetch("/api/createBook", {
         method: "POST",
         headers: {
@@ -159,6 +167,7 @@ function NewForm({ selectedBook }: NewFormProps) {
           category: form.getValues("category"),
           status: form.getValues("status"),
           favorite: form.getValues("favorite"),
+          id: id,
         }),
       });
 
@@ -184,9 +193,7 @@ function NewForm({ selectedBook }: NewFormProps) {
           setRate(0); // Réinitialiser la note
           setCoverUrl("");
           setCoverShow("");
-          // Effacer le message de réussite après la réinitialisation
-          setSuccessMessage("");
-        }, 1000);
+        }, 1500);
         return "Le livre a été enregistré avec succès.";
       } else {
         console.error(
@@ -259,12 +266,9 @@ function NewForm({ selectedBook }: NewFormProps) {
       // Met à jour l'état coverUrl avec l'URL validée
       setCoverUrl(coverUrl);
       setCoverShow(coverUrl);
-      setError(null); // Efface les erreurs précédentes
+      setError(null);
     } else {
-      // Affiche une erreur si l'URL n'est pas valide
-      // setError(
-      //   "L'URL de l'image n'est pas valide. Veuillez saisir une URL correcte.",
-      // );
+      setError("Veuillez entrer une URL valide.");
     }
   };
 
@@ -280,14 +284,15 @@ function NewForm({ selectedBook }: NewFormProps) {
   useEffect(() => {
     const fetchAuthors = async () => {
       try {
-        // setLoadingAuthors(true);
         const response = await axios.get<Author[]>("/api/getAuthors");
-
-        setAuthors(response.data);
+        // Tri des auteurs par ordre alphabétique
+        const sortedAuthors = response.data.sort((a, b) =>
+          a.name.localeCompare(b.name),
+        );
+        setAuthors(sortedAuthors);
       } catch (error) {
         console.error("Erreur lors de la récupération des auteurs :", error);
       } finally {
-        // setLoadingAuthors(false);
       }
     };
 
@@ -301,12 +306,7 @@ function NewForm({ selectedBook }: NewFormProps) {
   // Fonction pour ajouter des nouveaux auteurs à la BD
   const addAuthors = async (inputValue: any) => {
     try {
-      // console.log("Input Value:", inputValue);
-      // Vérifiez si le nom de l'auteur n'est pas vide
       if (inputValue !== "") {
-        // console.log("Creating author:", inputValue);
-
-        // Appelez votre API pour ajouter un nouvel auteur
         const response = await axios.post("/api/addAuthors", {
           name: inputValue,
         });
@@ -315,7 +315,6 @@ function NewForm({ selectedBook }: NewFormProps) {
           response.data.error &&
           response.data.error.includes("unique constraint failed")
         ) {
-          // L'auteur avec ce nom existe déjà, vous pouvez gérer cela ici
           console.error("L'auteur avec ce nom existe déjà.");
         } else {
           setAuthors((prevAuthors) => {
@@ -323,7 +322,6 @@ function NewForm({ selectedBook }: NewFormProps) {
 
             return newAuthors;
           });
-          // console.log("Auteur ajouté avec succès :", response.data);
         }
       } else {
         console.error("Le nom de l'auteur ne peut pas être vide.");
@@ -358,8 +356,9 @@ function NewForm({ selectedBook }: NewFormProps) {
       }));
       handleAuthorChange(authorsChange);
       setCoverUrl(selectedBook.imgUrl);
+      setCoverShow(selectedBook.imgUrl);
       return {
-        coverShow: "",
+        coverShow: selectedBook.imgUrl,
         title: selectedBook.title,
         imgUrl: selectedBook.imgUrl,
         authors: authorsChange.map((auteur_book) => auteur_book.name),
@@ -449,7 +448,7 @@ function NewForm({ selectedBook }: NewFormProps) {
               control={form.control}
               name="coverShow"
               render={() => (
-                <FormItem className="relative">
+                <FormItem>
                   <div
                     className={
                       "relative after:absolute  after:right-0 after:top-1/2 after:-z-50 after:h-px after:w-full after:bg-mc-gray after:content-['']"
@@ -457,11 +456,11 @@ function NewForm({ selectedBook }: NewFormProps) {
                   >
                     <FormLabel htmlFor="coverShow">aperçu</FormLabel>
                   </div>
-                  <div className="border-8 border-solid border-mc-beigeClair">
+                  <div className="relative border-8 border-solid border-mc-beigeClair">
                     {loading && <Progress value={70} />}
-                    <figure className="w-36 border-2 border-solid border-mc-gray sm:w-48">
+                    <figure className="border-2 border-solid border-mc-gray">
                       {/* Couverture par défaut */}
-                      {!loading && !coverUrl && (
+                      {!loading && !coverShow && (
                         <img
                           src={defaultCoverUrl}
                           alt="Couverture du livre par défaut"
@@ -470,16 +469,6 @@ function NewForm({ selectedBook }: NewFormProps) {
                           height={"289"}
                         />
                       )}
-
-                      {/* {!loading && !coverUrl && imageUrl && (
-                        <img
-                          src={imageUrl}
-                          alt="Couverture du livre"
-                          className="book-cover"
-                          width={"200"}
-                          height={"289"}
-                        />
-                      )} */}
 
                       {/* On affiche la couverture de l'API */}
                       {loading && <p>Chargement en cours...</p>}
@@ -493,16 +482,9 @@ function NewForm({ selectedBook }: NewFormProps) {
                         />
                       )}
                     </figure>
-                    <figure className="absolute -left-16 -top-0 w-16 sm:-left-28 sm:-top-20 sm:w-28">
+                    <figure className="absolute -left-20 -top-1/2 -z-30 w-16 sm:-left-28 sm:-top-20 sm:w-28">
                       <Image
                         src={catImage}
-                        style={
-                          {
-                            // position: "absolute",
-                            // top: "-20%",
-                            // left: "-113px",
-                          }
-                        }
                         width={114}
                         height={213}
                         alt="Chat"
@@ -523,13 +505,11 @@ function NewForm({ selectedBook }: NewFormProps) {
                 <FormItem>
                   <div
                     className={
-                      "relative after:absolute  after:right-0 after:top-1/2 after:-z-50 after:h-px after:w-full after:bg-mc-gray after:content-['']"
+                      "relative mt-8 after:absolute after:right-0  after:top-1/2 after:-z-50 after:h-px after:w-full after:bg-mc-gray after:content-[''] sm:mt-0"
                     }
                   >
                     <FormLabel htmlFor="title">Titre et couverture</FormLabel>
                   </div>
-                  {/* <FormDescription>{`Titre du livre :`}</FormDescription> */}
-
                   <FormControl>
                     <Input
                       placeholder="Titre du livre"
@@ -537,7 +517,6 @@ function NewForm({ selectedBook }: NewFormProps) {
                       {...field}
                     />
                   </FormControl>
-                  {/* <FormDescription>{`C'est le titre du livre.`}</FormDescription> */}
                   <FormMessage />
                 </FormItem>
               )}
@@ -548,25 +527,8 @@ function NewForm({ selectedBook }: NewFormProps) {
               name="imgUrl"
               render={({ field }) => (
                 <FormItem>
-                  {/* <div
-                    className={
-                      "relative after:absolute  after:right-0 after:top-1/2 after:-z-50 after:h-px after:w-full after:bg-mc-gray after:content-['']"
-                    }
-                  >
-                    <FormLabel htmlFor="imgUrl">Couverture</FormLabel>
-                  </div> */}
-
-                  <div>
-                    {/* <FormDescription>
-                      Rentrez le titre du livre et puis cliquez ici sur
-                      rechercher la couverture automatiquement
-                    </FormDescription> */}
-                  </div>
                   <FormMessage />
-                  {/* <FormControl> </FormControl> */}
-                  {/* {loading && <Progress value={70} />} */}
-                  {/* {error && ( */}
-                  <p>Image de couverture</p>
+                  <p className="mt-6">Image de couverture</p>
                   <div className="flex gap-3">
                     <Input
                       type="text"
@@ -621,10 +583,10 @@ function NewForm({ selectedBook }: NewFormProps) {
                 <FormItem>
                   <div
                     className={
-                      "relative after:absolute  after:right-0 after:top-1/2 after:-z-50 after:h-px after:w-full after:bg-mc-gray after:content-['']"
+                      "relative mt-10 after:absolute  after:right-0 after:top-1/2 after:-z-50 after:h-px after:w-full after:bg-mc-gray after:content-['']"
                     }
                   >
-                    <FormLabel htmlFor="authors">Auteur(s)</FormLabel>
+                    <FormLabel htmlFor="authors">Auteur/Autrice(s)</FormLabel>
                   </div>
                   <FormControl>
                     <AuthorsSelect
@@ -637,7 +599,7 @@ function NewForm({ selectedBook }: NewFormProps) {
                     />
                   </FormControl>
                   <FormDescription>
-                    Select the author(s) for the book.
+                    Selectionnez un auteur/autrice(s) pour le livre
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -652,18 +614,16 @@ function NewForm({ selectedBook }: NewFormProps) {
                 <FormItem>
                   <div
                     className={
-                      "relative after:absolute  after:right-0 after:top-1/2 after:-z-50 after:h-px after:w-full after:bg-mc-gray after:content-['']"
+                      "relative mt-10 after:absolute  after:right-0 after:top-1/2 after:-z-50 after:h-px after:w-full after:bg-mc-gray after:content-['']"
                     }
                   >
                     <FormLabel htmlFor="rate">Notation</FormLabel>
                   </div>
                   <FormControl>
-                    {/* <Input placeholder="0" type="number" {...field} /> */}
-
                     <StarRatingInput value={rate} onChange={setRate} />
                   </FormControl>
                   <FormDescription>
-                    This is your rate for the book.
+                    Cliquez sur les étoiles pour noter le livre
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -677,38 +637,31 @@ function NewForm({ selectedBook }: NewFormProps) {
                 <FormItem>
                   <div
                     className={
-                      "relative after:absolute  after:right-0 after:top-1/2 after:-z-50 after:h-px after:w-full after:bg-mc-gray after:content-['']"
+                      "relative mt-10 after:absolute  after:right-0 after:top-1/2 after:-z-50 after:h-px after:w-full after:bg-mc-gray after:content-['']"
                     }
                   >
                     <FormLabel htmlFor="description">Avis</FormLabel>
                   </div>
                   <FormControl>
-                    <Input
-                      placeholder="Ecriz ici un petite description/sinopsis du livre"
-                      style={{
-                        height: "150px",
-                        textAlign: "left",
-                        marginBottom: "2rem",
-                      }}
+                    <Textarea
+                      placeholder="Ecrivez ici un petite description/sinopsis du livre"
+                      className="custom-input"
                       {...field}
                     />
                   </FormControl>
-                  {/* <FormDescription>
-                    <div className="pb-10">This is your avis for the book.</div>
-                  </FormDescription> */}
                   <FormMessage />
                 </FormItem>
               )}
             />
-            {/*Classifiaation */}
+            {/*Notation*/}
             <div
               className={
-                "relative after:absolute  after:right-0 after:top-1/2 after:-z-50 after:h-px after:w-full after:bg-mc-gray after:content-['']"
+                "relative mt-10 after:absolute  after:right-0 after:top-1/2 after:-z-50 after:h-px after:w-full after:bg-mc-gray after:content-['']"
               }
             >
-              <p className="w-fit bg-mc-white pr-2">CLASSIFICATION</p>
+              <p className="mb-2 w-fit bg-mc-white pr-2">CLASSIFICATION</p>
             </div>
-            <div className="grid-col-1 grid sm:grid-cols-2 ">
+            <div className="grid-col-1 grid gap-8 sm:grid-cols-2">
               {/* Champ de type */}
               <FormField
                 control={form.control}
@@ -728,7 +681,7 @@ function NewForm({ selectedBook }: NewFormProps) {
                               placeholder={
                                 selectedBook
                                   ? selectedBook.type
-                                  : "Select a type"
+                                  : "Choisir un type"
                               }
                             />
                           </SelectTrigger>
@@ -738,7 +691,9 @@ function NewForm({ selectedBook }: NewFormProps) {
                         </SelectContent>
                       </Select>
                     </FormControl>
-                    <FormDescription>Type : BD, Livre, Manga</FormDescription>
+                    <FormDescription>
+                      Type : BD, Livre, Manga...
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -749,7 +704,7 @@ function NewForm({ selectedBook }: NewFormProps) {
                 name="category"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel htmlFor="category">Category</FormLabel>
+                    <FormLabel htmlFor="category">Catégorie</FormLabel>
                     <FormControl>
                       <Select
                         onValueChange={field.onChange}
@@ -761,7 +716,7 @@ function NewForm({ selectedBook }: NewFormProps) {
                               placeholder={
                                 selectedBook
                                   ? selectedBook.category
-                                  : "Select a category"
+                                  : "Choisir une catégorie"
                               }
                             />
                           </SelectTrigger>
@@ -773,7 +728,7 @@ function NewForm({ selectedBook }: NewFormProps) {
                     </FormControl>
                     <FormDescription>
                       <div className="pb-10">
-                        Category : SF, Roman, Fantaisie
+                        Catégorie : SF, Roman, Fantaisie...
                       </div>
                     </FormDescription>
                     <FormMessage />
@@ -786,7 +741,7 @@ function NewForm({ selectedBook }: NewFormProps) {
                 "relative after:absolute  after:right-0 after:top-1/2 after:-z-50 after:h-px after:w-full after:bg-mc-gray after:content-['']"
               }
             >
-              <p className="w-fit bg-mc-white pr-2 ">EN BREF</p>
+              <p className="mb-2 w-fit bg-mc-white pr-2 ">EN BREF</p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 ">
               {/* Champ de status */}
@@ -824,10 +779,10 @@ function NewForm({ selectedBook }: NewFormProps) {
                 control={form.control}
                 name="favorite"
                 render={({ field }) => (
-                  <FormItem className="flex  align-middle">
+                  <FormItem className="flex align-middle">
                     <FormLabel
                       htmlFor="favorite"
-                      className="flex flex-col justify-center text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      className="mt-4 flex flex-col justify-end font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 sm:justify-start"
                     >
                       Coup de coeur
                     </FormLabel>

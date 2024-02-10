@@ -15,7 +15,11 @@ const CategorySelect: React.FC<CategorySelectProps> = () => {
     const fetchCategories = async () => {
       try {
         const response = await axios.get<Category[]>("/api/getCategory");
-        setCategories(response.data);
+        // Tri des Categories par ordre alphabétique
+        const sortedCat = response.data.sort((a, b) =>
+          a.name.localeCompare(b.name),
+        );
+        setCategories(sortedCat);
       } catch (error) {
         console.error("Error fetching categories:", error);
       }

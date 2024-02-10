@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import Backto from "/public/images/Backto.svg";
@@ -15,10 +15,8 @@ import {
 import { buttonVariants } from "@/components/ui/button";
 
 import Image from "next/image";
-
-import { Heart } from "lucide-react";
-
 import DeleteBookModal from "./DeleteBookModal";
+import { useSession } from "next-auth/react";
 
 interface NextConfig {
   publicRuntimeConfig: {
@@ -72,6 +70,11 @@ function BookCard({
   }
   // suprimer des livres
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
+
+  // user
+  const { data: session } = useSession();
+  const userId = session?.user?.id;
+
   const handleDeleteClick = () => {
     // Ouvrir le modal lorsque l'utilisateur clique sur "Supprimer"
     setDeleteModalOpen(true);
@@ -165,40 +168,42 @@ function BookCard({
             <p>{description}</p>
           </div>
 
-          <div className="z-10 mx-auto mt-4 flex w-1/2 flex-col justify-center gap-2 pt-0 align-middle sm:mx-0 sm:w-fit sm:flex-row sm:justify-start sm:gap-10 sm:pt-4">
-            {/* Bouton Modifier */}
-            <Link href={`/modifier/${id}`} className="w-full">
+          {userId === 1 && (
+            <div className="z-10 mx-auto mt-4 flex w-1/2 flex-col justify-center gap-2 pt-0 align-middle sm:mx-0 sm:w-fit sm:flex-row sm:justify-start sm:gap-10 sm:pt-4">
+              {/* Bouton Modifier */}
+              <Link href={`/modifier/${id}`} className="w-full">
+                <button
+                  className={buttonVariants({
+                    variant: "default",
+                    size: "lg",
+                    className: "mt-2 sm:mt-5",
+                  })}
+                >
+                  Modifier
+                </button>
+              </Link>
+
+              {/* Bouton Supprimer */}
               <button
                 className={buttonVariants({
-                  variant: "default",
+                  variant: "destructive",
                   size: "lg",
                   className: "mt-2 sm:mt-5",
                 })}
+                onClick={handleDeleteClick}
               >
-                Modifier
+                Supprimer
               </button>
-            </Link>
-
-            {/* Bouton Supprimer */}
-            <button
-              className={buttonVariants({
-                variant: "destructive",
-                size: "lg",
-                className: "mt-2 sm:mt-5",
-              })}
-              onClick={handleDeleteClick}
-            >
-              Supprimer
-            </button>
-            {/* DeleteBookModal */}
-            {isDeleteModalOpen && (
-              <DeleteBookModal
-                bookId={id}
-                onClose={() => setDeleteModalOpen(false)}
-                isOpen={isDeleteModalOpen}
-              />
-            )}
-          </div>
+              {/* DeleteBookModal */}
+              {isDeleteModalOpen && (
+                <DeleteBookModal
+                  bookId={id}
+                  onClose={() => setDeleteModalOpen(false)}
+                  isOpen={isDeleteModalOpen}
+                />
+              )}
+            </div>
+          )}
         </div>
         <Link
           href="/"

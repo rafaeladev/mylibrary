@@ -7,6 +7,8 @@ import PageTitle from "@/components/PageTitle";
 
 import { Button, buttonVariants } from "@/components/ui/button";
 
+import { SessionProvider } from "next-auth/react";
+
 interface pageProps {
   params: { id: number };
 }
@@ -92,10 +94,12 @@ const Page: React.FC<pageProps> = ({ params }) => {
   }, []);
 
   return (
-    <div className=" mx-auto flex flex-col justify-center text-center">
-      <PageTitle title="Modifier" color="rose" />
-      <NewForm selectedBook={selectedBook} />
-    </div>
+    <SessionProvider>
+      <div className=" mx-auto flex flex-col justify-center text-center">
+        <PageTitle title="Modifier" color="rose" />
+        <NewForm selectedBook={selectedBook} />
+      </div>
+    </SessionProvider>
   );
 };
 

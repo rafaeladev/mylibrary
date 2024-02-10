@@ -142,7 +142,6 @@ const StarRatingInput: React.FC<StarRatingInputProps> = ({
         filled={index < value}
         onClick={() => {
           handleClick(index);
-          console.log("New Rating Value:", value); // Ajoutez cette ligne
         }}
       />
     ));
@@ -190,19 +189,19 @@ function BookForm() {
   // Fonction de soumission du formulaire
   async function onSubmit(data: BookFormValues) {
     const text = JSON.stringify(data, null, 2);
-    console.log("Données soumises :", text);
+    // console.log("Données soumises :", text);
 
     // Utilisez selectedAuthors pour soumettre la liste d'auteurs
-    console.log("Auteurs sélectionnés à soumettre:", selectedAuthors);
+    // console.log("Auteurs sélectionnés à soumettre:", selectedAuthors);
 
-    console.log("Auteurs sélectionnés à soumettre2:", authors);
+    // console.log("Auteurs sélectionnés à soumettre2:", authors);
 
     // Utilise Prisma pour créer une nouvelle entrée dans la table Book
     try {
-      console.log(
-        "authors envoyés",
-        selectedAuthors.map((value) => value.value),
-      );
+      // console.log(
+      //   "authors envoyés",
+      //   selectedAuthors.map((value) => value.value),
+      // );
       const response = await fetch("/api/createBook", {
         method: "POST",
         headers: {
@@ -218,10 +217,10 @@ function BookForm() {
       });
 
       if (response.ok) {
-        console.log("Le livre a été enregistré avec succès.");
+        // console.log("Le livre a été enregistré avec succès.");
         // Tu peux également récupérer la réponse de l'API si elle renvoie des données supplémentaires.
         const responseData = await response.json();
-        console.log("Réponse de l'API :", responseData);
+        // console.log("Réponse de l'API :", responseData);
         return "Le livre a été enregistré avec succès.";
       } else {
         console.error(
@@ -346,10 +345,10 @@ function BookForm() {
   // Gestion autheurs
   const addAuthors = async (inputValue: any) => {
     try {
-      console.log("Input Value:", inputValue);
+      // console.log("Input Value:", inputValue);
       // Vérifiez si le nom de l'auteur n'est pas vide
       if (inputValue !== "") {
-        console.log("Creating author:", inputValue);
+        // console.log("Creating author:", inputValue);
 
         // Appelez votre API pour ajouter un nouvel auteur
         const response = await axios.post("/api/addAuthors", {
@@ -365,10 +364,10 @@ function BookForm() {
         } else {
           setAuthors((prevAuthors) => {
             const newAuthors = [...prevAuthors, response.data];
-            console.log("New Authors:", newAuthors);
+            // console.log("New Authors:", newAuthors);
             return newAuthors;
           });
-          console.log("Auteur ajouté avec succès :", response.data);
+          // console.log("Auteur ajouté avec succès :", response.data);
         }
       } else {
         console.error("Le nom de l'auteur ne peut pas être vide.");
@@ -380,7 +379,7 @@ function BookForm() {
 
   const handleAuthorChange = useCallback(
     (newAuthors: Author[]) => {
-      console.log("New Authors:", newAuthors);
+      // console.log("New Authors:", newAuthors);
       setSelectedAuthors(newAuthors);
     },
     [setSelectedAuthors],

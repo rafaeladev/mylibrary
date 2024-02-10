@@ -17,7 +17,7 @@ export default async function handler(
 
   try {
     const { bookId } = req.query;
-    console.log("Le livre rçu pour deleter :" ,bookId);
+    // console.log("Le livre reçu pour deleter :" ,bookId);
 
     // Votre logique de suppression de livre ici
     await prisma.book.delete({

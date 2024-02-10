@@ -15,7 +15,12 @@ const TypeSelect: React.FC<TypeSelectProps> = () => {
     const fetchTypes = async () => {
       try {
         const response = await axios.get<Type[]>("/api/getType");
-        setTypes(response.data);
+
+        // Tri des types par ordre alphabétique
+        const sortedTypes = response.data.sort((a, b) =>
+          a.name.localeCompare(b.name),
+        );
+        setTypes(sortedTypes);
       } catch (error) {
         console.error("Error fetching types:", error);
       }

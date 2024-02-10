@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 const getBooks = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     const { categoryId, typeId, authorId, status, favorite } = req.query;
-    console.log(req.query);
+    // console.log(req.query);
     const books = await prisma.book.findMany({
       where: {
         categoryId: categoryId ? parseInt(categoryId as string) : undefined,

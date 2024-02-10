@@ -60,7 +60,7 @@ export default async function handler(
         status: data.status,
         favorite: data.favorite,
         rate: data.rate,
-        // userId:SessionId()
+        user: { connect: { id: data.id } },
       },
     });
     // console.log("Après la requête à la base de données");

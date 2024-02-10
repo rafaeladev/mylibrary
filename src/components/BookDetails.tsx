@@ -1,7 +1,10 @@
+"use client";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import BookCard from "../components/BookCard";
 import NewForm from "./form/NewForm";
+
+import { useSession } from "next-auth/react";
 
 interface Books {
   id: number;
@@ -21,6 +24,9 @@ interface BookDetailsProps {
 }
 
 export default function BookDetails({ bookId }: BookDetailsProps) {
+  const { data: session } = useSession();
+  const id = session?.user?.id;
+
   const [bookDetails, setBookDetails] = useState<Books | null>(null);
 
   // Modifying the book

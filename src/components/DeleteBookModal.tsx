@@ -27,7 +27,7 @@ const DeleteBookModal: React.FC<DeleteBookModalProps> = ({
     try {
       setIsLoading(true);
       // Effectuer la suppression via une requête API
-      console.log("URL requete  API:", bookId);
+      // console.log("URL requete  API:", bookId);
 
       await axios.delete(`/api/deleteBook?bookId=${bookId}`);
       setSuccessMessageVisible(true);
