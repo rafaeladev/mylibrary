@@ -113,23 +113,23 @@
 
 .bg--cover > :nth-child(odd) {
   background: #f3ece7;
-  padding: 20px;
+  /* padding: 20px; */
   width: 100%;
   margin-inline: auto;
 }
 
 @media only screen and (max-width: 600px) {
   .bg--cover > :nth-child(odd) {
-    padding: 4px;
+    /* padding: 4px; */
   }
   .bg--cover > :nth-child(even) {
-    padding: 4px;
+    /* padding: 4px; */
   }
 }
 
 .bg--cover > :nth-child(even) {
   background: #e8d5cd;
-  padding: 20px;
+  /* padding: 20px; */
   width: 100%;
   margin-inline: auto;
 }
@@ -197,10 +197,22 @@ footer {
   body {
     font-size: 16px;
   }
+  .book-cover {
+    /* width: 160px; ajuste la taille selon tes besoins */
+    height: 200px;
+    margin-inline: 0;
+    overflow: hidden;
+    /*height: auto; /* maintient le ratio hauteur/largeur */
+  }
 }
 
 .custom-input {
   word-wrap: break-word;
   white-space: pre-wrap;
   height: 150px;
+}
+
+.pagination-button.active {
+  background-color: #b07156;
+  color: #533745;
 }

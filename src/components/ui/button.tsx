@@ -14,14 +14,16 @@ const buttonVariants = cva(
         destructive:
           "bg-mc-rose text-mc-white hover:bg-mc-violet after:content-[''] after:bg-mc-violet/20 after:w-full  after:absolute after:-bottom-1.5 after:-right-2 after:h-10 after:-z-50",
         outline:
-          "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
+          "bg-mc-beigeClair border border-mc-marron hover:bg-accent hover:text-accent-foreground rounded-sm text-mc-violet ",
         secondary:
           "bg-mc-green text-mc-white hover:bg-mc-violet after:content-[''] after:bg-mc-violet/20 after:w-full  after:absolute after:-bottom-1.5 after:-right-2 after:h-10 after:-z-50",
         ghost: "text-mc-white hover:text-mc-violet",
-        link: "text-mc-white underline-offset-4 hover:underline",
+        link: "text-mc-white underline-offset-4 hover:underline ",
+        pageLink: "text-mc-violet hover:text-mc-marrom",
       },
       size: {
         default: "h-10 px-10",
+        s: "p-2 mx-1",
         sm: "px-1 sm:h-9  sm:px-2",
         lg: "h-11  px-10",
         icon: "h-10 w-10",

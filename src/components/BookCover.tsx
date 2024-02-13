@@ -25,7 +25,7 @@ function BookCover({
   return (
     <div>
       <Card
-        className="lg:max-w-48 max-w-48 h-200px w-48 bg-mc-white drop-shadow-std transition-all hover:bg-mc-beige"
+        className="lg:max-w-36 h-200px w-32 bg-mc-white drop-shadow-std transition-all hover:bg-mc-beige sm:w-36"
         key={id}
       >
         <Link href={`/book/${id}`}>

@@ -187,8 +187,8 @@ function BookCard({
               <button
                 className={buttonVariants({
                   variant: "destructive",
-                  size: "lg",
-                  className: "mt-2 sm:mt-5",
+                  size: "s",
+                  className: "mt-1 sm:mt-5",
                 })}
                 onClick={handleDeleteClick}
               >

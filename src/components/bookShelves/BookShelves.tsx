@@ -4,6 +4,7 @@ import { useMediaQuery } from "react-responsive";
 import BookCover from "../BookCover";
 import { FilterType } from "@/app/page";
 import { Progress } from "@/components/ui/progress";
+import { buttonVariants } from "@/components/ui/button";
 
 import { cn } from "@/lib/utils";
 
@@ -114,7 +115,7 @@ function BookShelves({ filters }: BookShelvesProps) {
     if (isTablet) {
       return 4; // Utilisez 4 éléments par ligne pour les tablettes
     } else if (isMobile) {
-      return 1; // Utilisez 1 élément par ligne pour les mobiles
+      return 2; // Utilisez 1 élément par ligne pour les mobiles
     } else {
       return 5; // Utilisez 5 éléments par ligne pour les autres tailles d'écran (par défaut)
     }
@@ -123,18 +124,12 @@ function BookShelves({ filters }: BookShelvesProps) {
   // Diviser la liste de livres en lots avec la taille déterminée par la fonction getChunkSize
   const booksChunks = chunks(booksList, getChunkSize());
 
-  // const booksCardList = booksList.map((book) => {
-  //   return <BookCover key={book.id} id={book.id} img={book.image} />;
-  // });
-
+  // Créer une liste de cartes de livres pour chaque lot
   const booksCardList = booksChunks.map((chunk, index) => (
     <div
       key={index}
       className={cn(
-        "border-x-6 border-t-6 border-mc-beige sm:border-x-8 sm:border-t-8",
-        index % 2 === 0
-          ? "flex justify-center gap-4"
-          : "flex justify-center gap-4",
+        "flex justify-center gap-3 border-x-6 border-t-6 border-mc-beige px-2 py-3 align-middle sm:justify-around sm:border-x-8 sm:border-t-8",
       )}
     >
       {chunk.map((book) => (
@@ -143,25 +138,95 @@ function BookShelves({ filters }: BookShelvesProps) {
     </div>
   ));
 
+  //====Pagination===
+  const [currentPage, setCurrentPage] = useState(1);
+  const [linesPerPage] = useState(4);
+
+  const indexOfLastLine = currentPage * linesPerPage;
+  const indexOfFirstLine = indexOfLastLine - linesPerPage;
+
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber + 1);
+
+  const goToPreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const goToNextPage = () => {
+    if (indexOfLastLine < booksList.length) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const totalPages = Math.ceil(booksChunks.length / linesPerPage);
+
+  const paginationButtons = Array.from({ length: totalPages }, (_, index) => (
+    <button
+      className={cn(
+        "pagination-button",
+        currentPage === index + 1 ? "active" : "",
+        buttonVariants({
+          variant: "outline",
+          size: "s",
+        }),
+      )}
+      key={index}
+      onClick={() => paginate(index)}
+    >
+      {index + 1}
+    </button>
+  ));
+
+  const booksThisPage = booksCardList.slice(indexOfFirstLine, indexOfLastLine);
+
   return (
     <>
       {isLoading ? (
-        <div className="my-80 max-w-2xl">
+        <div className="mb-32 mt-16 max-w-2xl sm:my-80">
           <p>Loading {progress}%...</p>
           <Progress value={progress} />
         </div>
       ) : (
         <>
-          <div className="fle-col bg--cover flex max-w-2xl flex-wrap">
+          <div className="fle-col bg--cover flex w-full max-w-2xl flex-wrap">
             {booksList.length > 0 ? (
-              booksCardList
+              booksThisPage
             ) : (
               <p>Pas de livres trouvés avec la recherche</p>
             )}
           </div>
           {booksList.length > 0 && (
-            <div className="mx-auto mb-56 h-6 max-w-2xl bg-mc-beige"></div>
+            <div className="mx-auto mb-2  h-2 max-w-2xl bg-mc-beige sm:h-6"></div>
           )}
+
+          <div className="flex justify-center align-middle">
+            {currentPage > 1 && (
+              <button
+                onClick={goToPreviousPage}
+                className={buttonVariants({
+                  variant: "pageLink",
+                  size: "s",
+                })}
+              >
+                Page précédente
+              </button>
+            )}
+
+            {paginationButtons}
+
+            {indexOfLastLine < booksList.length && (
+              <button
+                onClick={goToNextPage}
+                className={buttonVariants({
+                  variant: "pageLink",
+                  size: "s",
+                })}
+              >
+                Page suivante
+              </button>
+            )}
+          </div>
         </>
       )}
     </>
