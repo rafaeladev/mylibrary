@@ -3,6 +3,7 @@ import { buttonVariants } from "./ui/button";
 import { getAuthSession } from "@/lib/nextauth";
 import Login from "./Login";
 import Logout from "./Logout";
+import NavLinks from "./NavLinks";
 
 export default async function Navbar() {
   const session = await getAuthSession();
@@ -18,30 +19,7 @@ export default async function Navbar() {
           {/* todo : add mobile navbar */}
         </div>
         <div className="flex w-full justify-center gap-4 align-middle">
-          <Link
-            href="/"
-            className={buttonVariants({ variant: "ghost", size: "sm" })}
-          >
-            ACCUEIL
-          </Link>
-
-          <Link
-            href="/about"
-            className={buttonVariants({ variant: "ghost", size: "sm" })}
-          >
-            ABOUT
-          </Link>
-          <div className={buttonVariants({ variant: "ghost", size: "sm" })}>
-            {session ? <Logout /> : <Login />}
-          </div>
-          {id === 1 && (
-            <Link
-              href="/create"
-              className={buttonVariants({ variant: "ghost", size: "sm" })}
-            >
-              ADD LIVRE
-            </Link>
-          )}
+          <NavLinks id={id} session={session} />
         </div>
       </div>
     </nav>

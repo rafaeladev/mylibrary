@@ -35,7 +35,7 @@ export default function RootLayout({
 
           <MaxWidthWrapper>{children}</MaxWidthWrapper>
 
-          <div className="relative flex flex-col justify-center overflow-hidden align-middle">
+          <div className="relative mt-20 flex flex-col justify-center overflow-hidden align-middle">
             <Image
               src={kiki}
               alt="kikis"
