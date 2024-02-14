@@ -6,6 +6,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import MaxWidthWrapper from "@/components/MaxWidthWrapper";
 import Image from "next/image";
+import { ChevronUpIcon } from "lucide-react";
 
 export default function RootLayout({
   children,
@@ -25,6 +26,8 @@ export default function RootLayout({
 
     return proportionalHeight;
   };
+
+  
   return (
     <html lang="en">
       <body>
@@ -47,6 +50,7 @@ export default function RootLayout({
               }}
               className={cn("z-10 mx-auto mb-[-55px]")}
             />
+
             <Footer />
           </div>
         </div>

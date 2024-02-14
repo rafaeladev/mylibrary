@@ -43,18 +43,6 @@ function BookShelves({ filters }: BookShelvesProps) {
     query: "(min-width: 768px) and (max-width: 1024px)",
   });
   const isMobile = useMediaQuery({ query: "(max-width: 767px)" });
-  async function getAuthorsForBook(bookId: number): Promise<string[]> {
-    try {
-      const authorsResponse = await axios.get(
-        `/api/getAuthorsForBook?bookId=${bookId}`,
-      );
-
-      return authorsResponse.data.map((author: any) => author);
-    } catch (error) {
-      console.error("Erreur lors de la récupération des auteurs", error);
-      return [];
-    }
-  }
 
   const fetchData = async (filters: FilterType[] | null) => {
     try {
@@ -81,7 +69,7 @@ function BookShelves({ filters }: BookShelvesProps) {
         },
       });
 
-      const booksResponse = response.data;
+      const booksResponse = response.data.reverse();
       setBooksList(booksResponse);
 
       // Simulation d'une progression gradative
@@ -113,11 +101,11 @@ function BookShelves({ filters }: BookShelvesProps) {
   // Fonction pour déterminer la taille des lots en fonction de la taille de l'écran
   const getChunkSize = () => {
     if (isTablet) {
-      return 4; // Utilisez 4 éléments par ligne pour les tablettes
+      return 4; //4 éléments par ligne pour les tablettes
     } else if (isMobile) {
-      return 2; // Utilisez 1 élément par ligne pour les mobiles
+      return 2; // 2 éléments par ligne pour les mobiles
     } else {
-      return 5; // Utilisez 5 éléments par ligne pour les autres tailles d'écran (par défaut)
+      return 5; // 5 éléments par ligne pour les autres tailles d'écran (par défaut)
     }
   };
 

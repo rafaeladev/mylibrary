@@ -27,7 +27,7 @@ interface NavLinksProps {
 export default function NavLinks({ id, session }: NavLinksProps) {
   const pathname = usePathname();
   return (
-    <div className="flex w-full justify-center align-middle transition-all">
+    <div className="mt-2 flex w-full justify-center align-middle transition-all">
       <Link
         href="/"
         className={cn(
