@@ -166,6 +166,52 @@ function BookShelves({ filters }: BookShelvesProps) {
     </button>
   ));
 
+  const renderPaginationButtons = () => {
+    const totalPages = Math.ceil(booksList.length / linesPerPage);
+    const currentPageIndex = currentPage - 1;
+    const paginationButtons = [];
+
+    let startPage;
+    let endPage;
+
+    if (totalPages <= 4) {
+      startPage = 1;
+      endPage = totalPages;
+    } else {
+      if (currentPageIndex <= 1) {
+        startPage = 1;
+        endPage = 4;
+      } else if (currentPageIndex >= totalPages - 2) {
+        startPage = totalPages - 3;
+        endPage = totalPages;
+      } else {
+        startPage = currentPageIndex;
+        endPage = currentPageIndex + 3;
+      }
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      paginationButtons.push(
+        <button
+          className={cn(
+            "pagination-button",
+            currentPage === i ? "active" : "",
+            buttonVariants({
+              variant: "outline",
+              size: "s",
+            }),
+          )}
+          key={i}
+          onClick={() => paginate(i - 1)}
+        >
+          {i}
+        </button>,
+      );
+    }
+
+    return paginationButtons;
+  };
+
   const booksThisPage = booksCardList.slice(indexOfFirstLine, indexOfLastLine);
 
   return (
@@ -197,11 +243,11 @@ function BookShelves({ filters }: BookShelvesProps) {
                   size: "s",
                 })}
               >
-                Page précédente
+                {"<<"}
               </button>
             )}
 
-            {paginationButtons}
+            {renderPaginationButtons()}
 
             {indexOfLastLine < booksList.length && (
               <button
@@ -211,7 +257,7 @@ function BookShelves({ filters }: BookShelvesProps) {
                   size: "s",
                 })}
               >
-                Page suivante
+                {">>"}
               </button>
             )}
           </div>

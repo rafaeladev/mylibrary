@@ -216,3 +216,34 @@ footer {
   background-color: #b07156;
   color: #533745;
 }
+
+/* Collapse */
+.filter-container {
+  width: 100%;
+  max-width: 500px; /* Ajustez selon vos besoins */
+  margin: 0 auto;
+}
+
+.filter-content {
+  overflow: hidden;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  background-color: #f3ece7;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  margin-inline: 0.25rem;
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+}
+
+.filter-content.collapsed {
+  height: 0;
+  transition: height 0.3s ease-in-out;
+  opacity: 0;
+}
+
+.filter-content:not(.collapsed) {
+  transition: opacity 0.3s ease-in-out;
+  opacity: 1;
+}

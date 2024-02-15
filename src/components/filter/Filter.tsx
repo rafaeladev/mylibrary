@@ -32,6 +32,8 @@ const Filter: FC<FilterProps> = ({ filters, setFilters }) => {
   const [isFavorite, setIsFavorite] = useState(false);
   const [isAvailable, setIsAvailable] = useState(false);
 
+  const [isCollapsed, setIsCollapsed] = useState(true);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -111,83 +113,107 @@ const Filter: FC<FilterProps> = ({ filters, setFilters }) => {
     });
   };
 
+  const toggleCollapse = () => {
+    setIsCollapsed(!isCollapsed);
+  };
+
   return (
-    <div className="mb-10">
-      <div className="flex w-full flex-col flex-wrap justify-center gap-2 align-middle sm:flex-row sm:gap-4">
-        <p className="text-center font-serif text-2.5xl text-mc-marrom sm:text-left sm:text-2xl">
+    <div className="mb-4 sm:mb-10">
+      <div className="flex w-full flex-col flex-wrap justify-center align-middle sm:flex-row sm:gap-4">
+        <p className="text-center font-serif text-2xl leading-8 text-mc-marrom sm:text-left sm:text-2xl">
           Filtres :
         </p>
         {/* <label> */}
-        <select
-          id="authorSelect"
-          className="bg-mc-beige px-5 py-2 text-mc-white"
-          onChange={(e) => handleSelectFilter("author", Number(e.target.value))}
+        <button
+          className={buttonVariants({
+            variant: "accordion",
+            size: "s",
+          })}
+          onClick={toggleCollapse}
         >
-          <option value="" hidden>
-            Auteurs
-          </option>
-          {authors.map((author) => (
-            <option key={author.id} value={author.id}>
-              {author.name}
-            </option>
-          ))}
-        </select>
-        <select
-          id="typeSelect"
-          className="bg-mc-beige px-5 py-2 text-mc-white"
-          onChange={(e) => handleSelectFilter("type", Number(e.target.value))}
+          {isCollapsed ? "Afficher filtres" : "Cacher filtres"}
+        </button>
+        <div
+          className={`filter-content ${
+            isCollapsed
+              ? "collapsed animate-accordion-up"
+              : "animate-accordion-down"
+          }`}
         >
-          <option value="" hidden>
-            Types
-          </option>
-          {types.map((type) => (
-            <option key={type.id} value={type.id}>
-              {type.name}
+          <select
+            id="authorSelect"
+            className="bg-mc-beige px-5 py-2 text-mc-white"
+            onChange={(e) =>
+              handleSelectFilter("author", Number(e.target.value))
+            }
+          >
+            <option value="" hidden>
+              Auteurs
             </option>
-          ))}
-        </select>
-        <select
-          id="categorySelect"
-          className="bg-mc-beige px-5 py-2 text-mc-white"
-          onChange={(e) =>
-            handleSelectFilter("category", Number(e.target.value))
-          }
-        >
-          <option value="" hidden>
-            Categories
-          </option>
-          {categories.map((category) => (
-            <option key={category.id} value={category.id}>
-              {category.name}
+            {authors.map((author) => (
+              <option key={author.id} value={author.id}>
+                {author.name}
+              </option>
+            ))}
+          </select>
+          <select
+            id="typeSelect"
+            className="bg-mc-beige px-5 py-2 text-mc-white"
+            onChange={(e) => handleSelectFilter("type", Number(e.target.value))}
+          >
+            <option value="" hidden>
+              Types
             </option>
-          ))}
-        </select>
-        {/* </label> */}
+            {types.map((type) => (
+              <option key={type.id} value={type.id}>
+                {type.name}
+              </option>
+            ))}
+          </select>
+          <select
+            id="categorySelect"
+            className="bg-mc-beige px-5 py-2 text-mc-white"
+            onChange={(e) =>
+              handleSelectFilter("category", Number(e.target.value))
+            }
+          >
+            <option value="" hidden>
+              Categories
+            </option>
+            {categories.map((category) => (
+              <option key={category.id} value={category.id}>
+                {category.name}
+              </option>
+            ))}
+          </select>
+          {/* </label> */}
 
-        <label className="flex justify-center gap-2 align-middle">
-          <input
-            type="checkbox"
-            checked={isFavorite}
-            onChange={(e) => {
-              handleSelectFilter("favorite", e.target.checked);
-              setIsFavorite(!isFavorite);
-            }}
-            className="my-auto h-4 w-4"
-          />
-          <p className="my-auto">Favorits Uniquement</p>
-        </label>
-        <label className="flex justify-center gap-2 align-middle">
-          <input
-            type="checkbox"
-            checked={isAvailable}
-            onChange={(e) => {
-              handleSelectFilter("status", e.target.checked);
-              setIsAvailable(!isAvailable);
-            }}
-            className="my-auto h-4 w-4"
-          />
-          <p className="my-auto">Disponible</p>
-        </label>
+          <label className="flex justify-center gap-2 align-middle">
+            <input
+              type="checkbox"
+              checked={isFavorite}
+              onChange={(e) => {
+                handleSelectFilter("favorite", e.target.checked);
+                setIsFavorite(!isFavorite);
+              }}
+              className="my-auto h-4 w-4"
+            />
+            <p className="my-auto">Favoris Uniquement</p>
+          </label>
+          <label className="flex justify-center gap-2 align-middle">
+            <input
+              type="checkbox"
+              checked={isAvailable}
+              onChange={(e) => {
+                handleSelectFilter("status", e.target.checked);
+                setIsAvailable(!isAvailable);
+              }}
+              className="my-auto h-4 w-4"
+            />
+            <p className="my-auto">Disponibles Uniquement</p>
+          </label>
+        </div>
+
         {filters && (
           <Button
             onClick={clearFilters}

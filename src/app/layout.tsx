@@ -13,20 +13,6 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // Fonction pour calculer la hauteur proportionnelle en fonction de la largeur
-  const calculateHeight = (width: number) => {
-    // Hauteur de base
-    const baseHeight = 790;
-
-    // Facteur de proportionnalité
-    const scaleFactor = 1500 / width;
-
-    // Calcul de la hauteur proportionnelle
-    const proportionalHeight = Math.round(baseHeight / scaleFactor);
-
-    return proportionalHeight;
-  };
-
   
   return (
     <html lang="en">
