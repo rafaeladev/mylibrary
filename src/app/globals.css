@@ -228,17 +228,16 @@ footer {
   overflow: hidden;
   height: auto;
   display: flex;
-  flex-direction: column;
-  background-color: #f3ece7;
+  flex-direction: row;
+  background-color: #ffffff;
   gap: 0.5rem;
-  padding: 0.5rem;
   margin-inline: 0.25rem;
   border-bottom-left-radius: 5px;
   border-bottom-right-radius: 5px;
 }
 
 .filter-content.collapsed {
-  height: 0;
+  height: auto;
   transition: height 0.3s ease-in-out;
   opacity: 0;
 }
@@ -246,4 +245,25 @@ footer {
 .filter-content:not(.collapsed) {
   transition: opacity 0.3s ease-in-out;
   opacity: 1;
+}
+
+@media screen and (max-width: 768px) {
+  .filter-content {
+    overflow: hidden;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    background-color: #f3ece7;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    margin-inline: 0.25rem;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+  }
+
+  .filter-content.collapsed {
+    height: 0;
+    transition: height 0.3s ease-in-out;
+    opacity: 0;
+  }
 }
