@@ -134,7 +134,9 @@ const Filter: FC<FilterProps> = ({ filters, setFilters }) => {
                 variant: "accordion",
                 size: "s",
               }),
-              `collapse-button ${isCollapsed ? "" : "active"}`,
+              `collapse-button ${
+                isCollapsed ? "" : "active"
+              } mx-auto w-3/4 justify-between px-5`,
             )}
             onClick={toggleCollapse}
           >

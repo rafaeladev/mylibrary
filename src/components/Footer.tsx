@@ -26,7 +26,7 @@ export default function Footer() {
   };
   return (
     <>
-      <footer className="boder-gray-200 z-30  m-0 flex  w-full flex-col bg-footer-vector p-0 text-mc-violet transition-all">
+      <footer className="boder-gray-200 z-30  m-0 mt-auto flex  w-full flex-col bg-footer-vector p-0 text-mc-violet transition-all">
         {showScrollButton && (
           <button
             className="fixed bottom-6 right-6 z-50 rounded-full bg-mc-violet p-2 text-mc-white shadow-md transition-all duration-300 hover:bg-mc-rose focus:outline-none"
@@ -48,9 +48,13 @@ export default function Footer() {
             </svg>
           </button>
         )}
-        <div className="my-auto flex  w-full justify-center align-bottom">
-          <Image src={cafeMug} alt="cafe-mug" />
-          <p className="mt-auto h-fit w-40 text-center leading-3">
+        <div className=" my-auto flex w-full flex-col justify-center align-middle sm:flex-row sm:align-bottom">
+          <Image
+            src={cafeMug}
+            alt="cafe-mug"
+            className="mx-auto w-14 sm:mx-0 sm:w-auto"
+          />
+          <p className="mx-auto mt-auto h-fit w-40 text-center leading-3 sm:mx-0">
             Designed by
             <Link
               href="https://www.rafaeladsdo.com/"

@@ -20,8 +20,7 @@ const buttonVariants = cva(
         ghost: "text-mc-white hover:text-mc-violet",
         link: "text-mc-white underline-offset-4 hover:underline ",
         pageLink: "text-mc-violet hover:text-mc-marrom",
-        accordion:
-          "text-mc-violet border border-mc-beige rounded-sm bg-mc-beigeClair hover:text-mc-marrom hover:bg-mc-beige",
+        accordion: "text-mc-violet bg-mc-beigeClair hover:text-mc-marrom",
       },
       size: {
         default: "h-10 px-10",

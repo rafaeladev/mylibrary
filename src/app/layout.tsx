@@ -13,7 +13,6 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  
   return (
     <html lang="en">
       <body>
@@ -24,17 +23,16 @@ export default function RootLayout({
 
           <MaxWidthWrapper>{children}</MaxWidthWrapper>
 
-          <div className="relative mt-20 flex flex-col justify-center overflow-hidden align-middle">
+          <div className="relative mt-20 flex h-96 flex-col justify-center overflow-hidden align-middle sm:h-auto">
             <Image
               src={kiki}
               alt="kikis"
               priority={true}
+              className="absolute -left-2/4 bottom-1/4 z-30 mx-auto h-64 w-auto sm:static sm:mb-[-75px] sm:h-full  sm:w-full"
               style={{
-                width: "100%",
                 maxWidth: "1500px",
-                height: "auto",
               }}
-              className={cn("z-10 mx-auto mb-[-55px]")}
+              // className={cn("z-10 mx-auto mb-[-55px]")}
             />
 
             <Footer />
