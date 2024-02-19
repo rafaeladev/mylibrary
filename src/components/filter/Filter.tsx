@@ -5,6 +5,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useMediaQuery } from "react-responsive";
 import { ChevronRight } from "lucide-react";
+import { X } from "lucide-react";
 
 interface FilterProps {
   filters: FilterType[] | null;
@@ -128,21 +129,34 @@ const Filter: FC<FilterProps> = ({ filters, setFilters }) => {
           Filtres :
         </p>
         {isMobile && (
-          <button
-            className={cn(
-              buttonVariants({
-                variant: "accordion",
-                size: "s",
-              }),
-              `collapse-button ${
-                isCollapsed ? "" : "active"
-              } mx-auto w-3/4 justify-between px-5`,
+          <div className="flex justify-center align-middle">
+            <button
+              className={cn(
+                buttonVariants({
+                  variant: "accordion",
+                  size: "s",
+                }),
+                `collapse-button ${
+                  isCollapsed ? "" : "active"
+                } mx-0 w-3/4 justify-between px-5`,
+              )}
+              onClick={toggleCollapse}
+            >
+              {"Filtres"}
+              <ChevronRight className="collapse-arrow" />
+            </button>
+            {filters && (
+              <Button
+                onClick={clearFilters}
+                className={cn(
+                  buttonVariants({ variant: "close", size: "s" }),
+                  "mx-0",
+                )}
+              >
+                <X />
+              </Button>
             )}
-            onClick={toggleCollapse}
-          >
-            {"Filtres"}
-            <ChevronRight className="collapse-arrow" />
-          </button>
+          </div>
         )}
 
         {/* {(!isMobile || !isCollapsed) && ( */}
@@ -222,7 +236,7 @@ const Filter: FC<FilterProps> = ({ filters, setFilters }) => {
         </div>
         {/* )} */}
 
-        {filters && (
+        {!isMobile && filters && (
           <Button
             onClick={clearFilters}
             className={cn(
@@ -232,7 +246,7 @@ const Filter: FC<FilterProps> = ({ filters, setFilters }) => {
               "mx-auto my-auto w-1/2 sm:mx-0 sm:w-fit",
             )}
           >
-            Effacer filtres
+            <X />
           </Button>
         )}
       </div>

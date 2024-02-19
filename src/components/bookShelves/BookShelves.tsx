@@ -8,6 +8,11 @@ import { buttonVariants } from "@/components/ui/button";
 
 import { cn } from "@/lib/utils";
 
+import { ChevronLeft } from "lucide-react";
+import { ChevronRight } from "lucide-react";
+import { ChevronsLeft } from "lucide-react";
+import { ChevronsRight } from "lucide-react";
+
 interface Books {
   id: number;
   title: string;
@@ -37,6 +42,11 @@ function BookShelves({ filters }: BookShelvesProps) {
 
   const [progress, setProgress] = useState(13);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Mettre à jour la page actuelle lorsque les filtres changent
+  useEffect(() => {
+    setCurrentPage(1); // Redirigez l'utilisateur vers la première page
+  }, [filters]);
 
   // Media query pour changer la mise en page
   const isTablet = useMediaQuery({
@@ -147,27 +157,16 @@ function BookShelves({ filters }: BookShelvesProps) {
     }
   };
 
-  const totalPages = Math.ceil(booksChunks.length / linesPerPage);
+  const goToLastPage = () => {
+    setCurrentPage(Math.ceil(booksChunks.length / linesPerPage));
+  };
 
-  const paginationButtons = Array.from({ length: totalPages }, (_, index) => (
-    <button
-      className={cn(
-        "pagination-button",
-        currentPage === index + 1 ? "active" : "",
-        buttonVariants({
-          variant: "outline",
-          size: "s",
-        }),
-      )}
-      key={index}
-      onClick={() => paginate(index)}
-    >
-      {index + 1}
-    </button>
-  ));
+  const goToFirstPage = () => {
+    setCurrentPage(1);
+  };
 
   const renderPaginationButtons = () => {
-    const totalPages = Math.ceil(booksList.length / linesPerPage);
+    const totalPages = Math.ceil(booksChunks.length / linesPerPage);
     const currentPageIndex = currentPage - 1;
     const paginationButtons = [];
 
@@ -236,29 +235,55 @@ function BookShelves({ filters }: BookShelvesProps) {
 
           <div className="flex justify-center align-middle">
             {currentPage > 1 && (
-              <button
-                onClick={goToPreviousPage}
-                className={buttonVariants({
-                  variant: "pageLink",
-                  size: "s",
-                })}
-              >
-                {"<<"}
-              </button>
+              <>
+                {booksChunks.length > 10 && (
+                  <button
+                    onClick={goToFirstPage}
+                    className={buttonVariants({
+                      variant: "pageLink",
+                      size: "s",
+                    })}
+                  >
+                    <ChevronsLeft />
+                  </button>
+                )}
+                <button
+                  onClick={goToPreviousPage}
+                  className={buttonVariants({
+                    variant: "pageLink",
+                    size: "s",
+                  })}
+                >
+                  <ChevronLeft />
+                </button>
+              </>
             )}
 
             {renderPaginationButtons()}
 
-            {indexOfLastLine < booksList.length && (
-              <button
-                onClick={goToNextPage}
-                className={buttonVariants({
-                  variant: "pageLink",
-                  size: "s",
-                })}
-              >
-                {">>"}
-              </button>
+            {indexOfLastLine < booksChunks.length && (
+              <>
+                <button
+                  onClick={goToNextPage}
+                  className={buttonVariants({
+                    variant: "pageLink",
+                    size: "s",
+                  })}
+                >
+                  <ChevronRight />
+                </button>
+                {booksChunks.length > 10 && (
+                  <button
+                    onClick={goToLastPage}
+                    className={buttonVariants({
+                      variant: "pageLink",
+                      size: "s",
+                    })}
+                  >
+                    <ChevronsRight />
+                  </button>
+                )}
+              </>
             )}
           </div>
         </>

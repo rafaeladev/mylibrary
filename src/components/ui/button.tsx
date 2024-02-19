@@ -21,6 +21,8 @@ const buttonVariants = cva(
         link: "text-mc-white underline-offset-4 hover:underline ",
         pageLink: "text-mc-violet hover:text-mc-marrom",
         accordion: "text-mc-violet bg-mc-beigeClair hover:text-mc-marrom",
+        close:
+          "text-mc-white bg-mc-rose hover:text-mc-violet  after:content-[''] after:bg-mc-white",
       },
       size: {
         default: "h-10 px-10",
