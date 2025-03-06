@@ -17,7 +17,7 @@ const Page = () => {
 
   return (
     <>
-      <figure className="mx-auto mb-4 mt-8 w-fit sm:mb-24">
+      <figure className="mx-auto mb-2 mt-20 w-fit sm:mb-4 sm:mt-24 lg:mb-24">
         <Image src={Banners} alt="BacktoImage" />
       </figure>
       <div className="flex flex-col gap-2 md:flex-row md:justify-center">

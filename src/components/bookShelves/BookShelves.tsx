@@ -127,7 +127,7 @@ function BookShelves({ filters }: BookShelvesProps) {
     <div
       key={index}
       className={cn(
-        "flex justify-center gap-3 border-x-6 border-t-6 border-mc-beige px-2 py-3 align-middle sm:justify-center sm:gap-12 sm:border-x-8 sm:border-t-8",
+        "flex justify-center gap-1 border-x-6 border-t-6 border-mc-beige px-2 py-3 align-middle lg:justify-center lg:gap-12 lg:border-x-8 lg:border-t-8",
       )}
     >
       {chunk.map((book) => (

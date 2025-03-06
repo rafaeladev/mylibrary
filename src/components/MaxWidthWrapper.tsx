@@ -9,7 +9,11 @@ function MaxWidthWrapper({
   children: ReactNode;
 }) {
   return (
-    <main className={"mx-auto mt-36 h-full w-full max-w-2xl px-2 sm:px-6 "}>
+    <main
+      className={
+        "max-w-full mx-auto mt-16 h-full w-full px-2 sm:max-w-2xl sm:px-6 "
+      }
+    >
       {children}
     </main>
   );

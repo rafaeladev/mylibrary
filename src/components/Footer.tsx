@@ -24,6 +24,7 @@ export default function Footer() {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
+  
   return (
     <>
       <footer className="boder-gray-200 z-30  m-0 mt-auto flex  w-full flex-col bg-footer-vector p-0 text-mc-violet transition-all">

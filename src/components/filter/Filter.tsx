@@ -38,6 +38,9 @@ const Filter: FC<FilterProps> = ({ filters, setFilters }) => {
   const [isCollapsed, setIsCollapsed] = useState(true);
 
   const isMobile = useMediaQuery({ query: "(max-width: 767px)" });
+  const isTablet = useMediaQuery({
+    query: "(min-width: 768px) and (max-width: 1024px)",
+  });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -123,13 +126,15 @@ const Filter: FC<FilterProps> = ({ filters, setFilters }) => {
   };
 
   return (
-    <div className="mb-4 sm:mb-10">
-      <div className="flex w-full flex-col flex-wrap justify-center align-middle sm:flex-row sm:gap-4">
-        <p className="filter-title text-center font-serif text-2xl leading-8 text-mc-marrom sm:text-left sm:text-2xl">
-          Filtres :
-        </p>
-        {isMobile && (
-          <div className="flex justify-center align-middle">
+    <div className="mb-4 sm:w-full lg:mb-10">
+      <div className="flex w-full flex-col flex-wrap justify-center align-middle lg:flex-row lg:gap-4">
+        {!isMobile && !isTablet && (
+          <p className="filter-title text-center font-serif text-2xl leading-8 text-mc-marrom lg:text-left lg:text-2xl">
+            Filtres :
+          </p>
+        )}
+        {(isMobile || isTablet) && (
+          <div className="flex justify-center align-middle sm:w-full">
             <button
               className={cn(
                 buttonVariants({
@@ -138,7 +143,7 @@ const Filter: FC<FilterProps> = ({ filters, setFilters }) => {
                 }),
                 `collapse-button ${
                   isCollapsed ? "" : "active"
-                } mx-0 w-3/4 justify-between px-5`,
+                } mx-0 w-3/4 justify-between px-5 sm:w-full`,
               )}
               onClick={toggleCollapse}
             >
@@ -159,84 +164,84 @@ const Filter: FC<FilterProps> = ({ filters, setFilters }) => {
           </div>
         )}
 
-        {/* {(!isMobile || !isCollapsed) && ( */}
-        <div className={`filter-content ${isCollapsed ? "collapsed" : ""}`}>
-          <select
-            id="authorSelect"
-            className="bg-mc-beige px-5 py-2 text-mc-white"
-            onChange={(e) =>
-              handleSelectFilter("author", Number(e.target.value))
-            }
-          >
-            <option value="" hidden>
-              Auteurs
-            </option>
-            {authors.map((author) => (
-              <option key={author.id} value={author.id}>
-                {author.name}
+        {(isMobile || isTablet) && !isCollapsed && (
+          <div className="filter-content">
+            <select
+              id="authorSelect"
+              className="bg-mc-beige px-5 py-2 text-mc-white"
+              onChange={(e) =>
+                handleSelectFilter("author", Number(e.target.value))
+              }
+            >
+              <option value="" hidden>
+                Auteurs
               </option>
-            ))}
-          </select>
-          <select
-            id="typeSelect"
-            className="bg-mc-beige px-5 py-2 text-mc-white"
-            onChange={(e) => handleSelectFilter("type", Number(e.target.value))}
-          >
-            <option value="" hidden>
-              Types
-            </option>
-            {types.map((type) => (
-              <option key={type.id} value={type.id}>
-                {type.name}
+              {authors.map((author) => (
+                <option key={author.id} value={author.id}>
+                  {author.name}
+                </option>
+              ))}
+            </select>
+            <select
+              id="typeSelect"
+              className="bg-mc-beige px-5 py-2 text-mc-white"
+              onChange={(e) =>
+                handleSelectFilter("type", Number(e.target.value))
+              }
+            >
+              <option value="" hidden>
+                Types
               </option>
-            ))}
-          </select>
-          <select
-            id="categorySelect"
-            className="bg-mc-beige px-5 py-2 text-mc-white"
-            onChange={(e) =>
-              handleSelectFilter("category", Number(e.target.value))
-            }
-          >
-            <option value="" hidden>
-              Categories
-            </option>
-            {categories.map((category) => (
-              <option key={category.id} value={category.id}>
-                {category.name}
+              {types.map((type) => (
+                <option key={type.id} value={type.id}>
+                  {type.name}
+                </option>
+              ))}
+            </select>
+            <select
+              id="categorySelect"
+              className="bg-mc-beige px-5 py-2 text-mc-white"
+              onChange={(e) =>
+                handleSelectFilter("category", Number(e.target.value))
+              }
+            >
+              <option value="" hidden>
+                Categories
               </option>
-            ))}
-          </select>
-          {/* </label> */}
+              {categories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+            <label className="flex justify-center gap-2 align-middle">
+              <input
+                type="checkbox"
+                checked={isFavorite}
+                onChange={(e) => {
+                  handleSelectFilter("favorite", e.target.checked);
+                  setIsFavorite(!isFavorite);
+                }}
+                className="my-auto h-4 w-4"
+              />
+              <p className="my-auto">Favoris Uniquement</p>
+            </label>
+            <label className="flex justify-center gap-2 align-middle">
+              <input
+                type="checkbox"
+                checked={isAvailable}
+                onChange={(e) => {
+                  handleSelectFilter("status", e.target.checked);
+                  setIsAvailable(!isAvailable);
+                }}
+                className="my-auto h-4 w-4"
+              />
+              <p className="my-auto">Disponibles Uniquement</p>
+            </label>
+          </div>
+        )}
 
-          <label className="flex justify-center gap-2 align-middle">
-            <input
-              type="checkbox"
-              checked={isFavorite}
-              onChange={(e) => {
-                handleSelectFilter("favorite", e.target.checked);
-                setIsFavorite(!isFavorite);
-              }}
-              className="my-auto h-4 w-4"
-            />
-            <p className="my-auto">Favoris Uniquement</p>
-          </label>
-          <label className="flex justify-center gap-2 align-middle">
-            <input
-              type="checkbox"
-              checked={isAvailable}
-              onChange={(e) => {
-                handleSelectFilter("status", e.target.checked);
-                setIsAvailable(!isAvailable);
-              }}
-              className="my-auto h-4 w-4"
-            />
-            <p className="my-auto">Disponibles Uniquement</p>
-          </label>
-        </div>
-        {/* )} */}
-
-        {!isMobile && filters && (
+        {(!isMobile || !isTablet) && filters && (
           <Button
             onClick={clearFilters}
             className={cn(
