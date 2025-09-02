@@ -87,7 +87,7 @@ const Page: React.FC<pageProps> = ({ params }) => {
     };
 
     fetchData();
-  }, []);
+  }, [bookId]);
 
   return (
     <SessionProvider>

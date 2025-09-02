@@ -284,7 +284,7 @@ function BookShelves({ filters }: BookShelvesProps) {
           {booksList.length > 0 && (
             <div className="mx-auto mb-2  h-2 max-w-2xl bg-mc-beige sm:h-6"></div>
           )}
-
+          {/*     Pagination */}
           <div className="flex justify-center align-middle">
             {currentPage > 1 && (
               <>
