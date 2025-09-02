@@ -122,7 +122,7 @@ function NewForm({ selectedBook }: NewFormProps) {
       description: "",
       type: undefined,
       category: undefined,
-      status: false,
+      status: true,
       favorite: false,
     },
   });
@@ -185,7 +185,7 @@ function NewForm({ selectedBook }: NewFormProps) {
             description: "",
             type: undefined,
             category: undefined,
-            status: false,
+            status: true,
             favorite: false,
             imgUrl: "",
           });

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import axios from "axios";
 import { useMediaQuery } from "react-responsive";
 import BookCover from "../BookCover";
@@ -39,9 +39,10 @@ const chunks = <T,>(arr: T[], size: number): T[][] => {
 
 function BookShelves({ filters }: BookShelvesProps) {
   const [booksList, setBooksList] = useState<Books[]>([]);
-
   const [progress, setProgress] = useState(13);
   const [isLoading, setIsLoading] = useState(true);
+  const fetchSeqRef = useRef(0);
+  const [hasFetchedOnce, setHasFetchedOnce] = useState(false);
 
   // Mettre à jour la page actuelle lorsque les filtres changent
   useEffect(() => {
@@ -54,59 +55,106 @@ function BookShelves({ filters }: BookShelvesProps) {
   });
   const isMobile = useMediaQuery({ query: "(max-width: 767px)" });
 
-  const fetchData = async (filters: FilterType[] | null) => {
+  // Page progress
+  // Avancement visuel pendant le fetch
+  const intervalRef = useRef<number | null>(null);
+
+  const startProgress = () => {
+    // Remonte jusqu'à 90% max tant que le fetch est en cours
+    setProgress(0);
+    if (intervalRef.current) window.clearInterval(intervalRef.current);
+    intervalRef.current = window.setInterval(() => {
+      setProgress((p) => (p < 90 ? p + 5 : p)); // 5% toutes les 100ms
+    }, 100);
+  };
+
+  const stopProgress = (ok: boolean) => {
+    if (intervalRef.current) {
+      window.clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+    setProgress(ok ? 100 : 0);
+  };
+
+  const fetchData = async (
+    filters: FilterType[] | null,
+    abortSignal: AbortSignal,
+  ) => {
+    const mySeq = ++fetchSeqRef.current;
     try {
-      setIsLoading && setIsLoading(true);
+      setIsLoading(true);
+      startProgress();
       const apiUrl = "/api/getBooks";
 
+      const params = {
+        categoryId: filters?.find(
+          (filter: FilterType) => filter.filterBy === "category",
+        )?.filterValue,
+        typeId: filters?.find(
+          (filter: FilterType) => filter.filterBy === "type",
+        )?.filterValue,
+        authorId: filters?.find(
+          (filter: FilterType) => filter.filterBy === "author",
+        )?.filterValue,
+        status: filters?.find(
+          (filter: FilterType) => filter.filterBy === "status",
+        )?.filterValue,
+        favorite: filters?.find(
+          (filter: FilterType) => filter.filterBy === "favorite",
+        )?.filterValue,
+      };
+
       const response = await axios.get(apiUrl, {
-        params: {
-          categoryId: filters?.find(
-            (filter: FilterType) => filter.filterBy === "category",
-          )?.filterValue,
-          typeId: filters?.find(
-            (filter: FilterType) => filter.filterBy === "type",
-          )?.filterValue,
-          authorId: filters?.find(
-            (filter: FilterType) => filter.filterBy === "author",
-          )?.filterValue,
-          status: filters?.find(
-            (filter: FilterType) => filter.filterBy === "status",
-          )?.filterValue,
-          favorite: filters?.find(
-            (filter: FilterType) => filter.filterBy === "favorite",
-          )?.filterValue,
-        },
+        params,
+        signal: abortSignal,
+        timeout: 10000,
       });
 
-      const booksResponse = response.data.reverse();
+      // si une requête plus récente a démarré, on ignore les résultats
+      if (mySeq !== fetchSeqRef.current) return;
+
+      const data = Array.isArray(response.data) ? response.data : [];
+      const booksResponse = [...data].reverse();
       setBooksList(booksResponse);
 
-      // Simulation d'une progression gradative
-      let progress = 0;
-      const intervalId = setInterval(() => {
-        progress += 10; // Ajustez selon le nombre d'étapes souhaité
-        setProgress(Math.min(progress, 100));
-
-        if (progress >= 100) {
-          clearInterval(intervalId);
-          setIsLoading && setIsLoading(false);
-        }
-      }, 100); // Ajustez l'intervalle de temps entre chaque étape
-    } catch (error) {
+      stopProgress(true);
+      setHasFetchedOnce(true);
+    } catch (error: any) {
+      if (axios.isCancel?.(error) || error?.name === "CanceledError") {
+        return; // NEW ✅
+      }
       console.error("Erreur lors de la récupération des données", error);
+
+      // si c'est bien la requête active, on ferme le loader
+      if (mySeq === fetchSeqRef.current) {
+        stopProgress(false);
+        setHasFetchedOnce(true); // NEW ✅ un fetch a bien “fini”, même en erreur
+        setIsLoading(false);
+      }
+      return;
     } finally {
-      // setIsLoading && setIsLoading(false);
+      if (mySeq === fetchSeqRef.current && !abortSignal.aborted) {
+        setIsLoading(false); // ✅ évite le flash dû à une requête annulée
+      }
     }
   };
 
   // Fonction pour chercher les données dans la BD prisma et afficher
   useEffect(() => {
-    fetchData(filters);
+    setCurrentPage(1);
 
-    // Nettoyage de l'effet
-    return () => {};
-  }, [setBooksList, filters]);
+    const controller = new AbortController();
+    fetchData(filters, controller.signal);
+
+    return () => {
+      controller.abort();
+      if (intervalRef.current) {
+        window.clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
+    // eslint-disable-next-line
+  }, [filters]); // inutile d’inclure setBooksList
 
   // Fonction pour déterminer la taille des lots en fonction de la taille de l'écran
   const getChunkSize = () => {
@@ -120,7 +168,11 @@ function BookShelves({ filters }: BookShelvesProps) {
   };
 
   // Diviser la liste de livres en lots avec la taille déterminée par la fonction getChunkSize
-  const booksChunks = chunks(booksList, getChunkSize());
+  const booksChunks = useMemo(
+    () => chunks(booksList, getChunkSize()),
+    // eslint-disable-next-line
+    [booksList, isTablet, isMobile],
+  );
 
   // Créer une liste de cartes de livres pour chaque lot
   const booksCardList = booksChunks.map((chunk, index) => (
@@ -225,9 +277,9 @@ function BookShelves({ filters }: BookShelvesProps) {
           <div className="fle-col bg--cover flex w-full max-w-2xl flex-wrap">
             {booksList.length > 0 ? (
               booksThisPage
-            ) : (
+            ) : !isLoading && hasFetchedOnce ? (
               <p>Pas de livres trouvés avec la recherche</p>
-            )}
+            ) : null}
           </div>
           {booksList.length > 0 && (
             <div className="mx-auto mb-2  h-2 max-w-2xl bg-mc-beige sm:h-6"></div>

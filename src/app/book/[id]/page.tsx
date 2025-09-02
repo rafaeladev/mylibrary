@@ -1,5 +1,4 @@
 "use client";
-import BookCard from "@/components/BookCard";
 import BookDetails from "@/components/BookDetails";
 import PageTitle from "@/components/PageTitle";
 import { FC } from "react";
